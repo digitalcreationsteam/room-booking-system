@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -24,6 +25,7 @@ class Booking extends Model
         'number_of_children',
         'number_of_nights',
         'room_charges',
+        'gst_percentage',      // ✅ Added
         'gst_amount',
         'service_tax',
         'other_charges',
@@ -36,13 +38,17 @@ class Booking extends Model
         'booking_status',
         'cancellation_reason',
         'refund_amount',
-        'created_by'
+        'created_by',
+        'discount_type',
+        'discount_value',
+        'discount_amount',
     ];
 
     protected $casts = [
         'check_in' => 'datetime',
         'check_out' => 'datetime',
         'room_charges' => 'decimal:2',
+        'gst_percentage' => 'decimal:2',   // ✅ Added
         'gst_amount' => 'decimal:2',
         'service_tax' => 'decimal:2',
         'other_charges' => 'decimal:2',
@@ -50,7 +56,9 @@ class Booking extends Model
         'total_amount' => 'decimal:2',
         'advance_payment' => 'decimal:2',
         'remaining_amount' => 'decimal:2',
-        'refund_amount' => 'decimal:2'
+        'refund_amount' => 'decimal:2',
+        'discount_value'  => 'decimal:2',
+        'discount_amount' => 'decimal:2',
     ];
 
     protected static function boot()
@@ -80,7 +88,7 @@ class Booking extends Model
     public function rooms()
     {
         return $this->belongsToMany(Room::class, 'booking_rooms')
-                    ->withPivot('room_price')
-                    ->withTimestamps();
+            ->withPivot('room_price')
+            ->withTimestamps();
     }
 }
