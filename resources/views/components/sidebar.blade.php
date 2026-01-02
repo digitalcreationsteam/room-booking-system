@@ -8,7 +8,7 @@ $menu = [
     ['label' => 'Reports', 'route' => 'reports.bookings', 'icon' => 'fas fa-chart-bar'],
     ['label' => 'Revenue Report', 'route' => 'reports.revenue', 'icon' => 'fas fa-wallet'],
     ['label' => 'Tax Report', 'route' => 'reports.tax', 'icon' => 'fas fa-receipt'],
-    ['label' => 'Occupancy Report', 'route' => 'reports.occupancy', 'icon' => 'fas fa-users'],
+
     ['label' => 'Profile', 'route' => 'profile.edit', 'icon' => 'fas fa-user'],
 ];
 @endphp

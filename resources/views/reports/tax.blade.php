@@ -25,35 +25,53 @@
 </div>
 
 <!-- Tax Summary -->
-<div class="bg-white rounded-lg shadow p-6 mb-6">
-    <h3 class="text-lg font-semibold mb-4">Tax Summary</h3>
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-        <div class="border-l-4 border-blue-500 pl-4">
-            <p class="text-sm text-gray-600">Room Charges (Taxable)</p>
-            <p class="text-2xl font-bold">₹{{ number_format($taxSummary['total_room_charges'], 2) }}</p>
-        </div>
-        <div class="border-l-4 border-green-500 pl-4">
-            <p class="text-sm text-gray-600">GST Collected</p>
-            <p class="text-2xl font-bold text-green-600">₹{{ number_format($taxSummary['total_gst'], 2) }}</p>
-        </div>
-        <div class="border-l-4 border-orange-500 pl-4">
-            <p class="text-sm text-gray-600">Service Tax</p>
-            <p class="text-2xl font-bold text-orange-600">₹{{ number_format($taxSummary['total_service_tax'], 2) }}</p>
-        </div>
-        <div class="border-l-4 border-purple-500 pl-4">
-            <p class="text-sm text-gray-600">Other Charges</p>
-            <p class="text-2xl font-bold text-purple-600">₹{{ number_format($taxSummary['total_other_charges'], 2) }}</p>
-        </div>
-        <div class="border-l-4 border-yellow-500 pl-4">
-            <p class="text-sm text-gray-600">Extra Charges</p>
-            <p class="text-2xl font-bold text-yellow-600">₹{{ number_format($taxSummary['total_extra_charges'], 2) }}</p>
-        </div>
-        <div class="border-l-4 border-red-500 pl-4">
-            <p class="text-sm text-gray-600">Grand Total</p>
-            <p class="text-2xl font-bold text-red-600">₹{{ number_format($taxSummary['grand_total'], 2) }}</p>
-        </div>
+<!-- Tax Summary Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+
+    <div class="bg-blue-50 rounded-lg p-6 border border-blue-200">
+        <p class="text-sm text-gray-600">Room Charges (Taxable)</p>
+        <p class="text-3xl font-bold text-blue-600">
+            ₹{{ number_format($taxSummary['total_room_charges'], 2) }}
+        </p>
     </div>
+
+    <div class="bg-green-50 rounded-lg p-6 border border-green-200">
+        <p class="text-sm text-gray-600">GST Collected</p>
+        <p class="text-3xl font-bold text-green-600">
+            ₹{{ number_format($taxSummary['total_gst'], 2) }}
+        </p>
+    </div>
+
+    <div class="bg-orange-50 rounded-lg p-6 border border-orange-200">
+        <p class="text-sm text-gray-600">Service Tax</p>
+        <p class="text-3xl font-bold text-orange-600">
+            ₹{{ number_format($taxSummary['total_service_tax'], 2) }}
+        </p>
+    </div>
+
+    <div class="bg-purple-50 rounded-lg p-6 border border-purple-200">
+        <p class="text-sm text-gray-600">Other Charges</p>
+        <p class="text-3xl font-bold text-purple-600">
+            ₹{{ number_format($taxSummary['total_other_charges'], 2) }}
+        </p>
+    </div>
+
+    <div class="bg-yellow-50 rounded-lg p-6 border border-yellow-200">
+        <p class="text-sm text-gray-600">Extra Charges</p>
+        <p class="text-3xl font-bold text-yellow-600">
+            ₹{{ number_format($taxSummary['total_extra_charges'], 2) }}
+        </p>
+    </div>
+
+    <div class="bg-red-50 rounded-lg p-6 border border-red-200">
+        <p class="text-sm text-gray-600">Grand Total</p>
+        <p class="text-3xl font-bold text-red-600">
+            ₹{{ number_format($taxSummary['grand_total'], 2) }}
+        </p>
+    </div>
+
 </div>
+
 
 <!-- GST Breakdown -->
 <div class="bg-white rounded-lg shadow p-6 mb-6">

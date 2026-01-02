@@ -94,8 +94,8 @@
 </div>
 
 {{-- DISCOUNT (STANDARD UI) --}}
-<div class="mb-3 border rounded p-3 bg-gray-50">
-    <label class="font-medium block mb-2">Discount</label>
+<div class="mb-3 ">
+    <label class="block mb-2">Discount</label>
 
     <select id="discount_type" name="discount_type"
             class="w-full border rounded px-3 py-2 mb-2">
