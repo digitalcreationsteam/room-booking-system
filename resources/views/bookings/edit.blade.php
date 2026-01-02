@@ -5,6 +5,7 @@
 
 @section('content')
 
+{{-- Cancelled warning --}}
 @if($booking->booking_status === 'cancelled')
     <div class="bg-red-100 text-red-700 p-4 rounded mb-6">
         This booking has been cancelled and cannot be edited.
@@ -17,10 +18,10 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        <!-- LEFT SECTION -->
+        {{-- LEFT SECTION --}}
         <div class="lg:col-span-2">
 
-            <!-- CUSTOMER DETAILS -->
+            {{-- CUSTOMER DETAILS --}}
             <div class="bg-white rounded-lg shadow p-6 mb-6">
                 <h3 class="text-lg font-semibold mb-4">Customer Details</h3>
 
@@ -29,14 +30,16 @@
                         <label class="block text-sm font-medium mb-1">Customer Name *</label>
                         <input type="text" name="customer_name"
                                value="{{ old('customer_name', $booking->customer_name) }}"
-                               class="w-full px-3 py-2 border rounded" required>
+                               class="w-full border rounded px-3 py-2" required>
+                        @error('customer_name') <p class="text-red-500 text-xs">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium mb-1">Mobile Number *</label>
                         <input type="text" name="customer_mobile"
                                value="{{ old('customer_mobile', $booking->customer_mobile) }}"
-                               class="w-full px-3 py-2 border rounded" required>
+                               class="w-full border rounded px-3 py-2" required>
+                        @error('customer_mobile') <p class="text-red-500 text-xs">{{ $message }}</p> @enderror
                     </div>
                 </div>
 
@@ -44,13 +47,13 @@
                     <label class="block text-sm font-medium mb-1">Email</label>
                     <input type="email" name="customer_email"
                            value="{{ old('customer_email', $booking->customer_email) }}"
-                           class="w-full px-3 py-2 border rounded">
+                           class="w-full border rounded px-3 py-2">
                 </div>
 
                 <div class="mb-4">
                     <label class="block text-sm font-medium mb-1">Address *</label>
                     <textarea name="customer_address" rows="2"
-                              class="w-full px-3 py-2 border rounded"
+                              class="w-full border rounded px-3 py-2"
                               required>{{ old('customer_address', $booking->customer_address) }}</textarea>
                 </div>
 
@@ -59,19 +62,19 @@
                         <label class="block text-sm font-medium mb-1">Company Name</label>
                         <input type="text" name="company_name"
                                value="{{ old('company_name', $booking->company_name) }}"
-                               class="w-full px-3 py-2 border rounded">
+                               class="w-full border rounded px-3 py-2">
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium mb-1">GST Number</label>
                         <input type="text" name="gst_number"
                                value="{{ old('gst_number', $booking->gst_number) }}"
-                               class="w-full px-3 py-2 border rounded">
+                               class="w-full border rounded px-3 py-2">
                     </div>
                 </div>
             </div>
 
-            <!-- BOOKING DETAILS -->
+            {{-- BOOKING DETAILS --}}
             <div class="bg-white rounded-lg shadow p-6">
                 <h3 class="text-lg font-semibold mb-4">Booking Details</h3>
 
@@ -80,35 +83,34 @@
                         <label class="block text-sm font-medium mb-1">Check-in</label>
                         <input type="datetime-local"
                                value="{{ $booking->check_in->format('Y-m-d\TH:i') }}"
-                               class="w-full px-3 py-2 border rounded bg-gray-100" disabled>
+                               class="w-full border rounded px-3 py-2 bg-gray-100" disabled>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium mb-1">Check-out</label>
                         <input type="datetime-local"
                                value="{{ $booking->check_out->format('Y-m-d\TH:i') }}"
-                               class="w-full px-3 py-2 border rounded bg-gray-100" disabled>
+                               class="w-full border rounded px-3 py-2 bg-gray-100" disabled>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium mb-1">Adults *</label>
                         <input type="number" name="number_of_adults"
                                value="{{ old('number_of_adults', $booking->number_of_adults) }}"
-                               class="w-full px-3 py-2 border rounded" min="1" required>
+                               class="w-full border rounded px-3 py-2" min="1" required>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium mb-1">Children *</label>
+                        <label class="block text-sm font-medium mb-1">Children</label>
                         <input type="number" name="number_of_children"
                                value="{{ old('number_of_children', $booking->number_of_children) }}"
-                               class="w-full px-3 py-2 border rounded" min="0">
+                               class="w-full border rounded px-3 py-2" min="0">
                     </div>
                 </div>
 
-                <!-- ROOMS -->
-                <div class="mb-4">
+                {{-- ROOMS --}}
+                <div>
                     <label class="block text-sm font-medium mb-2">Booked Rooms</label>
-
                     <div class="grid grid-cols-2 gap-4 border rounded p-4">
                         @foreach($booking->rooms as $room)
                             <div class="p-3 border rounded bg-gray-50">
@@ -120,45 +122,97 @@
                             </div>
                         @endforeach
                     </div>
-
-                    <p class="text-sm text-gray-500 mt-2">
+                    <p class="text-xs text-gray-500 mt-2">
                         Room changes are not allowed after booking creation.
                     </p>
                 </div>
             </div>
         </div>
 
-        <!-- RIGHT SECTION -->
+        {{-- RIGHT SECTION : PAYMENT --}}
         <div>
             <div class="bg-white rounded-lg shadow p-6 sticky top-4">
                 <h3 class="text-lg font-semibold mb-4">Payment Summary</h3>
 
-                <div class="space-y-2 text-sm">
-                    <div class="flex justify-between">
-                        <span>Total Amount</span>
-                        <strong>₹{{ number_format($booking->total_amount, 2) }}</strong>
+                {{-- OLD GST INFO --}}
+                <div class="bg-gray-50 border rounded p-3 text-sm mb-4">
+                    <p><strong>Old GST %:</strong> {{ $booking->gst_percentage }}%</p>
+                    <p><strong>Old GST Amount:</strong> ₹{{ number_format($booking->gst_amount, 2) }}</p>
+                </div>
+
+                <div class="space-y-3 text-sm">
+
+                    <div>
+                        <label class="block mb-1">Room Charges *</label>
+                        <input type="number" step="0.01" min="0" name="room_charges"
+                               value="{{ old('room_charges', $booking->room_charges) }}"
+                               class="w-full border rounded px-3 py-2" required>
                     </div>
 
-                    <div class="flex justify-between">
-                        <span>Advance Paid</span>
-                        <strong>₹{{ number_format($booking->advance_payment, 2) }}</strong>
+                    <div>
+                        <label class="block mb-1">GST Percentage (%) *</label>
+                        <input type="number" step="0.01" min="0" max="28" name="gst_percentage"
+                               value="{{ old('gst_percentage', $booking->gst_percentage) }}"
+                               class="w-full border rounded px-3 py-2" required>
                     </div>
 
-                    <div class="flex justify-between text-red-600">
-                        <span>Remaining</span>
-                        <strong>₹{{ number_format($booking->remaining_amount, 2) }}</strong>
+                    <div>
+                        <label class="block mb-1">GST Discount (%)</label>
+                        <input type="number" step="0.01" min="0" max="100" name="gst_discount"
+                               value="{{ old('gst_discount', $booking->gst_discount ?? 0) }}"
+                               class="w-full border rounded px-3 py-2">
                     </div>
 
-                    <div class="flex justify-between">
-                        <span>Payment Status</span>
-                        <strong class="capitalize">{{ $booking->payment_status }}</strong>
+                    <div>
+                        <label class="block mb-1">Final GST Amount</label>
+                        <input type="number" step="0.01"
+                               value="{{ $booking->gst_amount }}"
+                               class="w-full border rounded px-3 py-2 bg-gray-100" readonly>
+                    </div>
+
+                    <div>
+                        <label class="block mb-1">Service Tax</label>
+                        <input type="number" step="0.01" min="0" name="service_tax"
+                               value="{{ old('service_tax', $booking->service_tax) }}"
+                               class="w-full border rounded px-3 py-2">
+                    </div>
+
+                    <div>
+                        <label class="block mb-1">Other Charges</label>
+                        <input type="number" step="0.01" min="0" name="other_charges"
+                               value="{{ old('other_charges', $booking->other_charges) }}"
+                               class="w-full border rounded px-3 py-2">
+                    </div>
+
+                    <div>
+                        <label class="block mb-1">Advance Paid</label>
+                        <input type="number" step="0.01" min="0" name="advance_payment"
+                               value="{{ old('advance_payment', $booking->advance_payment) }}"
+                               class="w-full border rounded px-3 py-2">
+                    </div>
+
+                    <div>
+                        <label class="block mb-1 text-red-600">Remaining Amount</label>
+                        <input type="number" step="0.01"
+                               value="{{ $booking->remaining_amount }}"
+                               class="w-full border rounded px-3 py-2 bg-gray-100 text-red-600 font-semibold"
+                               readonly>
+                    </div>
+
+                    <div>
+                        <label class="block mb-1">Payment Status</label>
+                        <select name="payment_status" class="w-full border rounded px-3 py-2">
+                            <option value="pending" {{ $booking->payment_status=='pending'?'selected':'' }}>Pending</option>
+                            <option value="partial" {{ $booking->payment_status=='partial'?'selected':'' }}>Partial</option>
+                            <option value="paid" {{ $booking->payment_status=='paid'?'selected':'' }}>Paid</option>
+                        </select>
                     </div>
                 </div>
 
                 <div class="border-t mt-6 pt-4">
                     <button type="submit"
-                            class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded font-semibold"
-                            {{ $booking->booking_status === 'cancelled' ? 'disabled' : '' }}>
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded font-semibold"
+                        {{ $booking->booking_status === 'cancelled' ? 'disabled' : '' }}>
                         Update Booking
                     </button>
 
@@ -172,5 +226,4 @@
 
     </div>
 </form>
-
 @endsection

@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use PDF;
 
+
 class BookingController extends Controller
 {
     public function index(Request $request)
@@ -48,8 +49,6 @@ class BookingController extends Controller
 
     public function store(Request $request)
     {
-
-    //    $validated = $request->all();
         $validated = $request->validate([
             'customer_name' => 'required|string|max:255',
             'customer_mobile' => 'required|string|max:20',
@@ -62,7 +61,7 @@ class BookingController extends Controller
             'check_in' => 'required|date',
             'check_out' => 'required|date|after:check_in',
             'number_of_adults' => 'required|integer|min:1',
-            'number_of_children' => 'nullable|integer|min:1',
+            'number_of_children' => 'nullable|integer',
             'number_of_nights' => 'nullable|integer|min:1',
             'room_ids' => 'required|array|min:1',
             'room_ids.*' => 'exists:rooms,id',
@@ -166,29 +165,223 @@ class BookingController extends Controller
         return view('bookings.edit', compact('booking', 'roomTypes', 'rooms'));
     }
 
+    // public function update(Request $request, Booking $booking)
+    // {
+    //     if ($booking->booking_status === 'cancelled') {
+    //         return redirect()->route('bookings.show', $booking)
+    //             ->with('error', 'Cannot update cancelled booking!');
+    //     }
+
+    //     $validated = $request->validate([
+    //         'customer_name' => 'required|string|max:255',
+    //         'customer_mobile' => 'required|string|max:20',
+    //         'customer_email' => 'nullable|email',
+    //         'customer_address' => 'required|string',
+    //         'company_name' => 'nullable|string|max:255',
+    //         'gst_number' => 'nullable|string|max:15',
+    //         'number_of_adults' => 'required|integer|min:1',
+    //         'number_of_children' => 'required|integer|min:1'
+    //     ]);
+
+    //     $booking->update($validated);
+
+    //     return redirect()->route('bookings.show', $booking)
+    //         ->with('success', 'Booking updated successfully!');
+    // }
+
+
+    // Old code
+    // public function update(Request $request, Booking $booking)
+    // {
+    //     // ❌ Cancelled booking protect
+    //     if ($booking->booking_status === 'cancelled') {
+    //         return redirect()
+    //             ->route('bookings.show', $booking->id)
+    //             ->with('error', 'Cancelled booking cannot be updated.');
+    //     }
+
+    //     // ✅ Validation
+    //     $validated = $request->validate([
+    //         'customer_name'       => 'required|string|max:255',
+    //         'customer_mobile'     => 'required|string|max:20',
+    //         'customer_email'      => 'nullable|email',
+    //         'customer_address'    => 'required|string',
+    //         'company_name'        => 'nullable|string|max:255',
+    //         'gst_number'          => 'nullable|string|max:20',
+
+    //         'number_of_adults'    => 'required|integer|min:1',
+    //         'number_of_children' => 'nullable|integer|min:0',
+
+    //         // 💰 Charges
+    //         'room_charges'        => 'required|numeric|min:0',
+    //         'gst_discount'        => 'nullable|numeric|min:0',
+    //         'service_tax'         => 'nullable|numeric|min:0',
+    //         'other_charges'       => 'nullable|numeric|min:0',
+
+    //         'total_amount'        => 'required|numeric|min:0',
+    //         'advance_payment'     => 'nullable|numeric|min:0',
+    //         'remaining_amount'    => 'required|numeric|min:0',
+
+    //         'payment_status'      => 'required|in:pending,partial,paid',
+    //     ]);
+
+    //     // 🧮 Defaults
+    //     $gstDiscount   = $validated['gst_discount'] ?? 0;
+    //     $serviceTax    = $validated['service_tax'] ?? 0;
+    //     $otherCharges  = $validated['other_charges'] ?? 0;
+    //     $advancePayment = $validated['advance_payment'] ?? 0;
+
+    //     // 🔢 Original GST (already stored booking se)
+    //     $originalGst = $booking->gst_amount;
+
+    //     // ✅ Apply GST discount (never negative)
+    //     $finalGst = max(0, $originalGst - $gstDiscount);
+
+    //     // 🔁 Recalculate total
+    //     $finalTotal =
+    //         $validated['room_charges'] +
+    //         $finalGst +
+    //         $serviceTax +
+    //         $otherCharges;
+
+    //     // 🔁 Remaining
+    //     $remainingAmount = max(0, $finalTotal - $advancePayment);
+
+    //     // 🔁 Payment status auto-fix
+    //     if ($advancePayment >= $finalTotal) {
+    //         $paymentStatus = 'paid';
+    //     } elseif ($advancePayment > 0) {
+    //         $paymentStatus = 'partial';
+    //     } else {
+    //         $paymentStatus = 'pending';
+    //     }
+
+    //     // ✅ Update booking
+    //     $booking->update([
+    //         'customer_name'       => $validated['customer_name'],
+    //         'customer_mobile'     => $validated['customer_mobile'],
+    //         'customer_email'      => $validated['customer_email'],
+    //         'customer_address'    => $validated['customer_address'],
+    //         'company_name'        => $validated['company_name'],
+    //         'gst_number'          => $validated['gst_number'],
+
+    //         'number_of_adults'    => $validated['number_of_adults'],
+    //         'number_of_children' => $validated['number_of_children'],
+
+    //         'room_charges'        => $validated['room_charges'],
+    //         'gst_discount'        => $gstDiscount,
+    //         'gst_amount'          => $finalGst,
+    //         'service_tax'         => $serviceTax,
+    //         'other_charges'       => $otherCharges,
+
+    //         'total_amount'        => $finalTotal,
+    //         'advance_payment'     => $advancePayment,
+    //         'remaining_amount'    => $remainingAmount,
+
+    //         'payment_status'      => $paymentStatus,
+    //     ]);
+
+    //     return redirect()
+    //         ->route('bookings.show', $booking->id)
+    //         ->with('success', 'Booking updated successfully!');
+    // }
+
     public function update(Request $request, Booking $booking)
     {
+        // ❌ Cancelled booking protect
         if ($booking->booking_status === 'cancelled') {
-            return redirect()->route('bookings.show', $booking)
-                ->with('error', 'Cannot update cancelled booking!');
+            return redirect()
+                ->route('bookings.show', $booking->id)
+                ->with('error', 'Cancelled booking cannot be updated.');
         }
 
+        // ✅ Validation
         $validated = $request->validate([
-            'customer_name' => 'required|string|max:255',
-            'customer_mobile' => 'required|string|max:20',
-            'customer_email' => 'nullable|email',
-            'customer_address' => 'required|string',
-            'company_name' => 'nullable|string|max:255',
-            'gst_number' => 'nullable|string|max:15',
-            'number_of_adults' => 'required|integer|min:1',
-            'number_of_children' => 'required|integer|min:1'
+            'customer_name'       => 'required|string|max:255',
+            'customer_mobile'     => 'required|string|max:20',
+            'customer_email'      => 'nullable|email',
+            'customer_address'    => 'required|string',
+            'company_name'        => 'nullable|string|max:255',
+            'gst_number'          => 'nullable|string|max:20',
+
+            'number_of_adults'    => 'required|integer|min:1',
+            'number_of_children' => 'nullable|integer|min:0',
+
+            // 💰 Charges
+            'room_charges'        => 'required|numeric|min:0',
+            'gst_percentage'      => 'required|numeric|min:0|max:28',
+            'gst_discount'        => 'nullable|numeric|min:0|max:100',
+            'service_tax'         => 'nullable|numeric|min:0',
+            'other_charges'       => 'nullable|numeric|min:0',
+
+            'advance_payment'     => 'nullable|numeric|min:0',
         ]);
 
-        $booking->update($validated);
+        // 🧮 Defaults
+        $gstPercentage   = $validated['gst_percentage'];
+        $gstDiscountPct  = $validated['gst_discount'] ?? 0;
+        $serviceTax      = $validated['service_tax'] ?? 0;
+        $otherCharges    = $validated['other_charges'] ?? 0;
+        $advancePayment = $validated['advance_payment'] ?? 0;
 
-        return redirect()->route('bookings.show', $booking)
+        // 🔢 GST calculation
+        $originalGst = ($validated['room_charges'] * $gstPercentage) / 100;
+
+        // 🔻 Discount on GST
+        $discountAmount = ($originalGst * $gstDiscountPct) / 100;
+        $finalGst = max(0, $originalGst - $discountAmount);
+
+        // 🔁 Final total
+        $finalTotal =
+            $validated['room_charges'] +
+            $finalGst +
+            $serviceTax +
+            $otherCharges;
+
+        // 🔁 Remaining
+        $remainingAmount = max(0, $finalTotal - $advancePayment);
+
+        // 🔁 Payment status auto
+        if ($advancePayment >= $finalTotal) {
+            $paymentStatus = 'paid';
+        } elseif ($advancePayment > 0) {
+            $paymentStatus = 'partial';
+        } else {
+            $paymentStatus = 'pending';
+        }
+
+        // ✅ Update booking
+        $booking->update([
+            'customer_name'       => $validated['customer_name'],
+            'customer_mobile'     => $validated['customer_mobile'],
+            'customer_email'      => $validated['customer_email'],
+            'customer_address'    => $validated['customer_address'],
+            'company_name'        => $validated['company_name'],
+            'gst_number'          => $validated['gst_number'],
+
+            'number_of_adults'    => $validated['number_of_adults'],
+            'number_of_children' => $validated['number_of_children'],
+
+            'room_charges'        => $validated['room_charges'],
+            'gst_percentage'      => $gstPercentage,
+            'gst_discount'        => $gstDiscountPct,
+            'gst_amount'          => $finalGst,
+
+            'service_tax'         => $serviceTax,
+            'other_charges'       => $otherCharges,
+
+            'total_amount'        => $finalTotal,
+            'advance_payment'     => $advancePayment,
+            'remaining_amount'    => $remainingAmount,
+
+            'payment_status'      => $paymentStatus,
+        ]);
+
+        return redirect()
+            ->route('bookings.show', $booking->id)
             ->with('success', 'Booking updated successfully!');
     }
+
 
     public function addExtraCharge(Request $request, Booking $booking)
     {
@@ -204,7 +397,7 @@ class BookingController extends Controller
         // Update booking totals
         $totalExtraCharges = $booking->extraCharges()->sum('amount');
         $newTotal = $booking->room_charges + $booking->gst_amount +
-                   $booking->service_tax + $booking->other_charges + $totalExtraCharges;
+            $booking->service_tax + $booking->other_charges + $totalExtraCharges;
 
         $booking->update([
             'extra_charges' => $totalExtraCharges,
@@ -224,7 +417,7 @@ class BookingController extends Controller
         // Recalculate totals
         $totalExtraCharges = $booking->extraCharges()->sum('amount');
         $newTotal = $booking->room_charges + $booking->gst_amount +
-                   $booking->service_tax + $booking->other_charges + $totalExtraCharges;
+            $booking->service_tax + $booking->other_charges + $totalExtraCharges;
 
         $booking->update([
             'extra_charges' => $totalExtraCharges,
