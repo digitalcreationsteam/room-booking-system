@@ -20,7 +20,7 @@
     <div class="flex-1 flex flex-col">
 
         <!-- Top Header -->
-        <header class="bg-white shadow px-6 py-4 flex justify-between items-center">
+        <header class="bg-white shadow px-6 py-5 flex justify-between items-center">
             <h1 class="text-xl font-semibold">@yield('header')</h1>
 
             <div class="flex items-center gap-4">
