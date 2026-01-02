@@ -45,4 +45,10 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+
+    public function hotel()
+    {
+        return $this->hasOne(\App\Models\Hotel::class);
+    }
 }

@@ -56,106 +56,24 @@ class RoomController extends Controller
         return view('rooms.edit', compact('room', 'roomTypes'));
     }
 
-    // public function update(Request $request, Room $room)
-    // {
-    //     $validated = $request->validate([
-    //         'room_number' => 'required|string|unique:rooms,room_number,' . $room->id,
-    //         'room_type_id' => 'required|exists:room_types,id',
-    //         'floor_number' => 'required|integer|min:0',
-    //         'base_price' => 'required|numeric|min:0',
-    //         'gst_percentage' => 'required|numeric|min:0|max:100',
-    //         'service_tax_percentage' => 'nullable|numeric|min:0|max:100',
-    //         'other_charges' => 'nullable|numeric|min:0',
-    //         'amenities' => 'nullable|string',
-    //         'status' => 'required|in:available,booked,maintenance'
-    //     ]);
-
-    //     $room->update($validated);
-
-    //     return redirect()->route('rooms.index')
-    //         ->with('success', 'Room updated successfully!');
-    // }
-
-
-
-
-    public function update(Request $request, Booking $booking)
+    public function update(Request $request, Room $room)
     {
-        // ❌ Cancelled booking protect
-        if ($booking->booking_status === 'cancelled') {
-            return redirect()
-                ->route('bookings.show', $booking->id)
-                ->with('error', 'Cancelled booking cannot be updated.');
-        }
-
-        // ✅ Validation
         $validated = $request->validate([
-            'customer_name'       => 'required|string|max:255',
-            'customer_mobile'     => 'required|string|max:20',
-            'customer_email'      => 'nullable|email',
-            'customer_address'    => 'required|string',
-            'company_name'        => 'nullable|string|max:255',
-            'gst_number'          => 'nullable|string|max:20',
-
-            'number_of_adults'    => 'required|integer|min:1',
-            'number_of_children' => 'nullable|integer|min:0',
-
-            // 💰 Payment editable fields
-            'room_charges'        => 'required|numeric|min:0',
-            'gst_amount'          => 'required|numeric|min:0',
-            'service_tax'         => 'nullable|numeric|min:0',
-            'other_charges'       => 'nullable|numeric|min:0',
-
-            'total_amount'        => 'required|numeric|min:0',
-            'advance_payment'     => 'nullable|numeric|min:0',
-            'remaining_amount'    => 'required|numeric|min:0',
-
-            'payment_status'      => 'required|in:pending,partial,paid',
+            'room_number' => 'required|string|unique:rooms,room_number,' . $room->id,
+            'room_type_id' => 'required|exists:room_types,id',
+            'floor_number' => 'required|integer|min:0',
+            'base_price' => 'required|numeric|min:0',
+            'gst_percentage' => 'required|numeric|min:0|max:100',
+            'service_tax_percentage' => 'nullable|numeric|min:0|max:100',
+            'other_charges' => 'nullable|numeric|min:0',
+            'amenities' => 'nullable|string',
+            'status' => 'required|in:available,booked,maintenance'
         ]);
 
-        // 🧮 Safe defaults
-        $advancePayment = $validated['advance_payment'] ?? 0;
-        $serviceTax     = $validated['service_tax'] ?? 0;
-        $otherCharges   = $validated['other_charges'] ?? 0;
+        $room->update($validated);
 
-        // 🔁 Auto-fix payment status (extra safety)
-        $paymentStatus = $validated['payment_status'];
-
-        if ($advancePayment >= $validated['total_amount']) {
-            $paymentStatus = 'paid';
-        } elseif ($advancePayment > 0) {
-            $paymentStatus = 'partial';
-        } else {
-            $paymentStatus = 'pending';
-        }
-
-        // ✅ Update booking
-        $booking->update([
-            'customer_name'       => $validated['customer_name'],
-            'customer_mobile'     => $validated['customer_mobile'],
-            'customer_email'      => $validated['customer_email'],
-            'customer_address'    => $validated['customer_address'],
-            'company_name'        => $validated['company_name'],
-            'gst_number'          => $validated['gst_number'],
-
-            'number_of_adults'    => $validated['number_of_adults'],
-            'number_of_children' => $validated['number_of_children'],
-
-            'room_charges'        => $validated['room_charges'],
-            'gst_amount'          => $validated['gst_amount'],
-            'service_tax'         => $serviceTax,
-            'other_charges'       => $otherCharges,
-
-            'total_amount'        => $validated['total_amount'],
-            'advance_payment'     => $advancePayment,
-            'remaining_amount'    => $validated['remaining_amount'],
-
-            'payment_status'      => $paymentStatus,
-        ]);
-
-        return redirect()
-            ->route('bookings.show', $booking->id)
-            ->with('success', 'Booking updated successfully!');
+        return redirect()->route('rooms.index')
+            ->with('success', 'Room updated successfully!');
     }
 
 

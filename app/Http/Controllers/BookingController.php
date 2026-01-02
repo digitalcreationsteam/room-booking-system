@@ -9,6 +9,7 @@ use App\Models\RoomType;
 use App\Models\ExtraCharge;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use PDF;
 
 
@@ -527,10 +528,35 @@ class BookingController extends Controller
             ->with('success', 'Customer checked out successfully!');
     }
 
+    // public function invoice(Booking $booking)
+    // {
+    //     $booking->load(['bookingRooms.room.roomType', 'extraCharges']);
+
+    //     return view('bookings.invoice', compact('booking'));
+    // }
+
+
     public function invoice(Booking $booking)
     {
-        $booking->load(['bookingRooms.room.roomType', 'extraCharges']);
+        // Booking relations
+        $booking->load([
+            'bookingRooms.room.roomType',
+            'extraCharges'
+        ]);
 
-        return view('bookings.invoice', compact('booking'));
+        // Current logged-in user
+        $user = Auth::user();
+
+        // Hotel info (agar user_id se hotel linked hai)
+        $hotel = $user->hotel ?? null;
+        // OR agar Booking se hotel milta ho:
+        // $hotel = $booking->hotel ?? null;
+
+        return view('bookings.invoice', compact(
+            'booking',
+            'user',
+            'hotel'
+        ));
     }
+
 }

@@ -50,6 +50,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('reports/occupancy', [ReportController::class, 'occupancy'])->name('reports.occupancy');
     Route::get('reports/export-bookings', [ReportController::class, 'exportBookings'])->name('reports.export-bookings');
 
+    // Route::resource('profile', ProfileController::class);
+
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
