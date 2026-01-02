@@ -12,7 +12,7 @@
             {{-- Room Number & Room Type --}}
             <div class="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Room Number</label>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Room Number *</label>
                     <input type="text" name="room_number" value="{{ old('room_number') }}"
                         class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500">
                     @error('room_number')
@@ -21,7 +21,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Room Type</label>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Room Type *</label>
                     <select name="room_type_id"
                         class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500">
                         <option value="">Select Room Type</option>
@@ -40,7 +40,7 @@
             {{-- Floor & Base Price --}}
             <div class="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Floor Number</label>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Floor Number *</label>
                     <input type="number" name="floor_number" value="{{ old('floor_number', 0) }}"
                         class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500">
                     @error('floor_number')
@@ -49,7 +49,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Base Price (₹)</label>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Base Price (₹) *</label>
                     <input type="number" name="base_price" value="{{ old('base_price') }}" step="0.01"
                         class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500">
                     @error('base_price')
@@ -102,7 +102,7 @@
 
             {{-- Status --}}
             <div class="mb-6">
-                <label class="block text-gray-700 text-sm font-bold mb-2">Status</label>
+                <label class="block text-gray-700 text-sm font-bold mb-2">Status *</label>
                 <select name="status"
                     class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500">
                     <option value="">Select Status</option>
