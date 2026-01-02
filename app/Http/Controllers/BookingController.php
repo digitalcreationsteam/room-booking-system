@@ -382,7 +382,6 @@ class BookingController extends Controller
             ->with('success', 'Booking updated successfully!');
     }
 
-
     public function addExtraCharge(Request $request, Booking $booking)
     {
         $validated = $request->validate([

@@ -144,56 +144,49 @@
 
                     <div>
                         <label class="block mb-1">Room Charges *</label>
-                        <input type="number" step="0.01" min="0" name="room_charges"
+                        <input type="number" step="0.01" min="0" name="room_charges" id="room_charges"
                                value="{{ old('room_charges', $booking->room_charges) }}"
                                class="w-full border rounded px-3 py-2" required>
                     </div>
 
                     <div>
                         <label class="block mb-1">GST Percentage (%) *</label>
-                        <input type="number" step="0.01" min="0" max="28" name="gst_percentage"
+                        <input type="number" step="0.01" min="0" max="28" name="gst_percentage" id="gst_percentage"
                                value="{{ old('gst_percentage', $booking->gst_percentage) }}"
-                               class="w-full border rounded px-3 py-2" required>
-                    </div>
-
-                    <div>
-                        <label class="block mb-1">GST Discount (%)</label>
-                        <input type="number" step="0.01" min="0" max="100" name="gst_discount"
-                               value="{{ old('gst_discount', $booking->gst_discount ?? 0) }}"
                                class="w-full border rounded px-3 py-2">
                     </div>
 
                     <div>
                         <label class="block mb-1">Final GST Amount</label>
-                        <input type="number" step="0.01"
-                               value="{{ $booking->gst_amount }}"
+                        <input type="number" step="0.01" name="gst_amount" id="gst_amount"
+                               value="{{ old('gst_amount', $booking->gst_amount) }}"
                                class="w-full border rounded px-3 py-2 bg-gray-100" readonly>
                     </div>
 
                     <div>
                         <label class="block mb-1">Service Tax</label>
-                        <input type="number" step="0.01" min="0" name="service_tax"
-                               value="{{ old('service_tax', $booking->service_tax) }}"
+                        <input type="number" step="0.01" min="0" name="service_tax" id="service_tax"
+                               value="{{ old('service_tax', $booking->service_tax ?? 0) }}"
                                class="w-full border rounded px-3 py-2">
                     </div>
 
                     <div>
                         <label class="block mb-1">Other Charges</label>
-                        <input type="number" step="0.01" min="0" name="other_charges"
-                               value="{{ old('other_charges', $booking->other_charges) }}"
+                        <input type="number" step="0.01" min="0" name="other_charges" id="other_charges"
+                               value="{{ old('other_charges', $booking->other_charges ?? 0) }}"
                                class="w-full border rounded px-3 py-2">
                     </div>
 
                     <div>
                         <label class="block mb-1">Advance Paid</label>
-                        <input type="number" step="0.01" min="0" name="advance_payment"
-                               value="{{ old('advance_payment', $booking->advance_payment) }}"
+                        <input type="number" step="0.01" min="0" name="advance_payment" id="advance_payment"
+                               value="{{ old('advance_payment', $booking->advance_payment ?? 0) }}"
                                class="w-full border rounded px-3 py-2">
                     </div>
 
                     <div>
                         <label class="block mb-1 text-red-600">Remaining Amount</label>
-                        <input type="number" step="0.01"
+                        <input type="number" step="0.01" id="remaining_amount"
                                value="{{ $booking->remaining_amount }}"
                                class="w-full border rounded px-3 py-2 bg-gray-100 text-red-600 font-semibold"
                                readonly>
@@ -201,7 +194,7 @@
 
                     <div>
                         <label class="block mb-1">Payment Status</label>
-                        <select name="payment_status" class="w-full border rounded px-3 py-2">
+                        <select name="payment_status" id="payment_status" class="w-full border rounded px-3 py-2">
                             <option value="pending" {{ $booking->payment_status=='pending'?'selected':'' }}>Pending</option>
                             <option value="partial" {{ $booking->payment_status=='partial'?'selected':'' }}>Partial</option>
                             <option value="paid" {{ $booking->payment_status=='paid'?'selected':'' }}>Paid</option>
@@ -226,4 +219,67 @@
 
     </div>
 </form>
+
+<script>
+    // Auto-calculate payment amounts with GST discount
+    function calculatePayment() {
+        // Get input values and handle null/undefined
+        const roomCharges = parseFloat(document.getElementById('room_charges').value) || 0;
+        const gstPercentage = parseFloat(document.getElementById('gst_percentage').value) || 0;
+        const gstDiscount = parseFloat(document.getElementById('gst_discount').value) || 0;
+        const serviceTax = parseFloat(document.getElementById('service_tax').value) || 0;
+        const otherCharges = parseFloat(document.getElementById('other_charges').value) || 0;
+        const advancePayment = parseFloat(document.getElementById('advance_payment').value) || 0;
+
+        // Calculate GST with discount
+        const originalGst = (roomCharges * gstPercentage) / 100;
+        const discountAmount = (originalGst * gstDiscount) / 100;
+        const finalGst = Math.max(0, originalGst - discountAmount);
+
+        // Calculate total
+        const totalAmount = roomCharges + finalGst + serviceTax + otherCharges;
+        const remainingAmount = Math.max(0, totalAmount - advancePayment);
+
+        // Update calculated fields
+        document.getElementById('gst_amount').value = finalGst.toFixed(2);
+        document.getElementById('remaining_amount').value = remainingAmount.toFixed(2);
+
+        // Auto-update payment status
+        const paymentStatusSelect = document.getElementById('payment_status');
+        if (advancePayment >= totalAmount && totalAmount > 0) {
+            paymentStatusSelect.value = 'paid';
+        } else if (advancePayment > 0) {
+            paymentStatusSelect.value = 'partial';
+        } else {
+            paymentStatusSelect.value = 'pending';
+        }
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Payment related fields
+        const paymentFields = [
+            'room_charges',
+            'gst_percentage',
+            'gst_discount',
+            'service_tax',
+            'other_charges',
+            'advance_payment'
+        ];
+
+        // Add event listeners to all fields
+        paymentFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                // Listen to both input (real-time) and change events
+                field.addEventListener('input', calculatePayment);
+                field.addEventListener('change', calculatePayment);
+            }
+        });
+
+        // Calculate on page load with existing values
+        calculatePayment();
+    });
+</script>
+
 @endsection
