@@ -53,13 +53,9 @@
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium mb-1">Address *</label>
+                    <label class="block text-sm font-medium mb-1">Address </label>
                     <textarea name="customer_address" rows="2"
-                        class="w-full px-3 py-2 border rounded @error('customer_address') border-red-500 @enderror">{{ old('customer_address') }}</textarea>
-
-                    @error('customer_address')
-                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                    @enderror
+                        class="w-full px-3 py-2 border rounded">{{ old('customer_address') }}</textarea>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4 mb-4">
@@ -127,7 +123,7 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium mb-1">Adults *</label>
+                        <label class="block text-sm font-medium mb-1">Adults</label>
                         <input type="number" name="number_of_adults"
                             value="{{ old('number_of_adults', 1) }}"
                             min="1"
