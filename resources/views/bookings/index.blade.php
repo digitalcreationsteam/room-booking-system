@@ -66,6 +66,7 @@
         <thead class="bg-gray-50">
             <tr>
                 <th class="px-6 py-3 text-xs uppercase">Booking #</th>
+                <th class="px-6 py-3 text-xs uppercase">Reg. No</th>
                 <th class="px-6 py-3 text-xs uppercase">Customer</th>
                 <th class="px-6 py-3 text-xs uppercase">Dates</th>
                 <th class="px-6 py-3 text-xs uppercase">Rooms</th>
@@ -80,7 +81,9 @@
         @forelse($bookings as $booking)
             <tr>
                 <td class="px-6 py-4 font-semibold">{{ $booking->booking_number }}</td>
-
+                <td class="px-6 py-4">
+                    {{ $booking->registration_no ?? '-' }}
+                </td>
                 <td class="px-6 py-4">
                     <div>{{ $booking->customer_name }}</div>
                     <div class="text-xs text-gray-500">{{ $booking->customer_mobile }}</div>

@@ -51,6 +51,18 @@ class="absolute bg-white border rounded shadow w-full mt-1 hidden z-50 max-h-60 
 </div>
 </div>
 
+{{-- REGISTRATION NO --}}
+<div class="mb-4">
+    <label class="block text-sm font-medium mb-1">Registration No*</label>
+    <input type="text" name="registration_no"
+           value="{{ old('registration_no') }}"
+           class="w-full px-3 py-2 border rounded">
+           @error('customer_mobile')
+<p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+@enderror
+</div>
+
+
 {{-- EMAIL --}}
 <div class="mb-4">
 <label class="block text-sm font-medium mb-1">Email</label>

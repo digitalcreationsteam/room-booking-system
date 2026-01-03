@@ -53,6 +53,7 @@ class BookingController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'registration_no'   => 'required|string|max:50',
             'customer_name' => 'required|string|max:255',
             'customer_mobile' => 'required|string|max:20',
             'customer_email' => 'nullable|email',
@@ -103,27 +104,9 @@ class BookingController extends Controller
         $advancePayment = $validated['advance_payment'] ?? 0;
         $paymentMode = $validated['payment_mode'] ?? null;
 
-        // 💰 Payment Mode Logic
-        if ($paymentMode === 'cash') {
-            // Cash payment: Full payment, status = paid
-            $advancePayment = $totalAmount;
-            $remainingAmount = 0;
-            $paymentStatus = 'paid';
-        } else {
-            // Other payment modes: Normal calculation
-            $remainingAmount = max(0, $totalAmount - $advancePayment);
-
-            // Auto-calculate payment status
-            if ($advancePayment >= $totalAmount) {
-                $paymentStatus = 'paid';
-                $remainingAmount = 0;
-            } elseif ($advancePayment > 0) {
-                $paymentStatus = 'partial';
-            } else {
-                $paymentStatus = 'pending';
-            }
-        }
-
+        $advancePayment = $advancePayment;
+        $remainingAmount = 0;
+        $paymentStatus = 'paid';
 
         $customer = Customer::where('customer_mobile', $validated['customer_mobile'])->first();
 
@@ -142,6 +125,7 @@ class BookingController extends Controller
 
         // Create booking
         $booking = Booking::create([
+            'registration_no'  => $validated['registration_no'] ?? null,
             'customer_id' => $customer->id,
             'customer_name' => $validated['customer_name'],
             'customer_mobile' => $validated['customer_mobile'],
@@ -341,16 +325,16 @@ class BookingController extends Controller
             $otherCharges;
 
         /* 🔢 Remaining */
-        $remainingAmount = max(0, $finalTotal - $advancePayment);
+        $remainingAmount = 0;
 
         /* 🔢 Payment status */
-        if ($advancePayment >= $finalTotal) {
-            $paymentStatus = 'paid';
-        } elseif ($advancePayment > 0) {
-            $paymentStatus = 'partial';
-        } else {
-            $paymentStatus = 'pending';
-        }
+        // if ($advancePayment >= $finalTotal) {
+        //     $paymentStatus = 'paid';
+        // } elseif ($advancePayment > 0) {
+        //     $paymentStatus = 'partial';
+        // } else {
+        //     $paymentStatus = 'pending';
+        // }
 
         // ✅ Update booking
         $booking->update([
@@ -369,7 +353,7 @@ class BookingController extends Controller
             'total_amount'     => $finalTotal,
             'advance_payment'  => $advancePayment,
             'remaining_amount' => $remainingAmount,
-            'payment_status'   => $paymentStatus,
+            // 'payment_status'   => $paymentStatus,
         ]);
 
         // $booking->update([

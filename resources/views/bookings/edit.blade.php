@@ -26,40 +26,48 @@
 
     <div class="grid grid-cols-2 gap-4 mb-4">
         <div>
+            <label>Registration No</label>
+            <input type="text" name="registration_no"
+                value="{{ old('registration_no', $booking->registration_no) }}"
+                class="w-full border rounded px-3 py-2" required>
+        </div>
+
+        <div>
             <label>Customer Name *</label>
             <input type="text" name="customer_name"
-                   value="{{ old('customer_name', $booking->customer_name) }}"
-                   class="w-full border rounded px-3 py-2" required>
+                value="{{ old('customer_name', $booking->customer_name) }}"
+                class="w-full border rounded px-3 py-2" required>
         </div>
 
         <div>
             <label>Mobile *</label>
             <input type="text" name="customer_mobile"
-                   value="{{ old('customer_mobile', $booking->customer_mobile) }}"
-                   class="w-full border rounded px-3 py-2" required>
+                value="{{ old('customer_mobile', $booking->customer_mobile) }}"
+                class="w-full border rounded px-3 py-2" required>
         </div>
     </div>
 
     <div class="mb-4">
         <label>Email</label>
         <input type="email" name="customer_email"
-               value="{{ old('customer_email', $booking->customer_email) }}"
-               class="w-full border rounded px-3 py-2">
+            value="{{ old('customer_email', $booking->customer_email) }}"
+            class="w-full border rounded px-3 py-2">
     </div>
 
     <div class="mb-4">
         <label>Address *</label>
         <textarea name="customer_address" required
-                  class="w-full border rounded px-3 py-2">{{ old('customer_address', $booking->customer_address) }}</textarea>
+            class="w-full border rounded px-3 py-2">{{ old('customer_address', $booking->customer_address) }}</textarea>
     </div>
 
     <div class="grid grid-cols-2 gap-4">
         <input type="text" name="company_name"
-               value="{{ $booking->company_name }}"
-               class="border rounded px-3 py-2" placeholder="Company">
+            value="{{ $booking->company_name }}"
+            class="border rounded px-3 py-2" placeholder="Company">
+
         <input type="text" name="gst_number"
-               value="{{ $booking->gst_number }}"
-               class="border rounded px-3 py-2" placeholder="GST Number">
+            value="{{ $booking->gst_number }}"
+            class="border rounded px-3 py-2" placeholder="GST Number">
     </div>
 </div>
 
@@ -67,13 +75,14 @@
 <div class="bg-white rounded-lg shadow p-6">
     <h3 class="text-lg font-semibold mb-4">Booking Details</h3>
 
-    <div class="grid grid-cols-3 gap-4">
+    <div class="grid grid-cols-2 gap-4">
         <input type="number" name="number_of_adults" min="1"
-               value="{{ $booking->number_of_adults }}"
-               class="border rounded px-3 py-2" placeholder="Adults">
+            value="{{ $booking->number_of_adults }}"
+            class="border rounded px-3 py-2" placeholder="Adults">
+
         <input type="number" name="number_of_children" min="0"
-               value="{{ $booking->number_of_children }}"
-               class="border rounded px-3 py-2" placeholder="Children">
+            value="{{ $booking->number_of_children }}"
+            class="border rounded px-3 py-2" placeholder="Children">
     </div>
 </div>
 
@@ -82,98 +91,84 @@
 {{-- ================= RIGHT SECTION ================= --}}
 <div>
 <div class="bg-white rounded-lg shadow p-6 sticky top-4">
+
 <h3 class="text-lg font-semibold mb-4">Payment Summary</h3>
 
-{{-- ROOM --}}
 <div class="mb-3">
     <label>Room Charges *</label>
-    <input type="number" step="0.01" id="room_charges"
-           name="room_charges"
-           value="{{ $booking->room_charges }}"
-           class="w-full border rounded px-3 py-2">
+    <input type="number" step="0.01" id="room_charges" name="room_charges"
+        value="{{ $booking->room_charges }}"
+        class="w-full border rounded px-3 py-2">
 </div>
 
-{{-- DISCOUNT (STANDARD UI) --}}
-<div class="mb-3 ">
-    <label class="block mb-2">Discount</label>
+<div class="mb-3">
+    <label>Discount</label>
 
     <select id="discount_type" name="discount_type"
-            class="w-full border rounded px-3 py-2 mb-2">
+        class="w-full border rounded px-3 py-2 mb-2">
         <option value="">No Discount</option>
-        <option value="percentage" @selected($booking->discount_type=='percentage')>
-            Percentage (%)
-        </option>
-        <option value="fixed" @selected($booking->discount_type=='fixed')>
-            Flat Amount (₹)
-        </option>
+        <option value="percentage" @selected($booking->discount_type=='percentage')>Percentage (%)</option>
+        <option value="fixed" @selected($booking->discount_type=='fixed')>Flat Amount (₹)</option>
     </select>
 
-    <input type="number" step="0.01" min="0"
-           id="discount_value" name="discount_value"
-           value="{{ $booking->discount_value ?? 0 }}"
-           class="w-full border rounded px-3 py-2 mb-2"
-           placeholder="Discount Value">
+    <input type="number" step="0.01" id="discount_value" name="discount_value"
+        value="{{ $booking->discount_value ?? 0 }}"
+        class="w-full border rounded px-3 py-2 mb-2">
 
     <input type="text" id="discount_amount"
-           class="w-full border rounded px-3 py-2 bg-gray-100 text-green-600 font-semibold"
-           readonly placeholder="Discount Amount">
+        class="w-full border rounded px-3 py-2 bg-gray-100 text-green-600 font-semibold"
+        readonly>
 </div>
 
-{{-- GST --}}
 <div class="mb-3">
     <label>GST %</label>
-    <input type="number" step="0.01" id="gst_percentage"
-           name="gst_percentage"
-           value="{{ $booking->gst_percentage }}"
-           class="w-full border rounded px-3 py-2">
+    <input type="number" step="0.01" id="gst_percentage" name="gst_percentage"
+        value="{{ $booking->gst_percentage }}"
+        class="w-full border rounded px-3 py-2">
 </div>
 
 <div class="mb-3">
     <label>GST Amount</label>
     <input type="text" id="gst_amount"
-           class="w-full border rounded px-3 py-2 bg-gray-100" readonly>
+        class="w-full border rounded px-3 py-2 bg-gray-100" readonly>
 </div>
 
-{{-- OTHER --}}
 <div class="mb-3">
     <label>Service Tax</label>
-    <input type="number" step="0.01" id="service_tax"
-           name="service_tax"
-           value="{{ $booking->service_tax ?? 0 }}"
-           class="w-full border rounded px-3 py-2">
+    <input type="number" step="0.01" id="service_tax" name="service_tax"
+        value="{{ $booking->service_tax ?? 0 }}"
+        class="w-full border rounded px-3 py-2">
 </div>
 
 <div class="mb-3">
     <label>Other Charges</label>
-    <input type="number" step="0.01" id="other_charges"
-           name="other_charges"
-           value="{{ $booking->other_charges ?? 0 }}"
-           class="w-full border rounded px-3 py-2">
+    <input type="number" step="0.01" id="other_charges" name="other_charges"
+        value="{{ $booking->other_charges ?? 0 }}"
+        class="w-full border rounded px-3 py-2">
 </div>
 
-{{-- PAYMENT --}}
 <div class="mb-3">
     <label>Advance Paid</label>
-    <input type="number" step="0.01" id="advance_payment"
-           name="advance_payment"
-           value="{{ $booking->advance_payment }}"
-           class="w-full border rounded px-3 py-2">
+    <input type="number" step="0.01" id="advance_payment" name="advance_payment"
+        value="{{ $booking->advance_payment }}"
+        class="w-full border rounded px-3 py-2">
 </div>
 
 <div class="mb-4">
     <label class="text-red-600">Remaining Amount</label>
     <input type="text" id="remaining_amount"
-           class="w-full border rounded px-3 py-2 bg-gray-100 text-red-600 font-bold"
-           readonly>
+        value="{{ number_format($booking->remaining_amount,2) }}"
+        class="w-full border rounded px-3 py-2 bg-gray-100 text-red-600 font-bold"
+        readonly>
 </div>
 
 <div class="mb-4">
     <label>Payment Status</label>
     <select id="payment_status" name="payment_status"
-            class="w-full border rounded px-3 py-2">
-        <option value="pending">Pending</option>
-        <option value="partial">Partial</option>
-        <option value="paid">Paid</option>
+        class="w-full border rounded px-3 py-2">
+        <option value="pending" @selected($booking->payment_status=='pending')>Pending</option>
+        <option value="partial" @selected($booking->payment_status=='partial')>Partial</option>
+        <option value="paid" @selected($booking->payment_status=='paid')>Paid</option>
     </select>
 </div>
 
@@ -183,13 +178,26 @@
 
 </div>
 </div>
-
 </div>
 </form>
 
 {{-- ================= SCRIPT ================= --}}
 <script>
+let userChanged = false;
+
+[
+    room_charges, discount_type, discount_value,
+    gst_percentage, service_tax, other_charges, advance_payment
+].forEach(el => {
+    el.addEventListener('input', () => {
+        userChanged = true;
+        calculatePayment();
+    });
+});
+
 function calculatePayment() {
+
+    if (!userChanged) return;
 
     let room = +room_charges.value || 0;
     let gstP = +gst_percentage.value || 0;
@@ -217,11 +225,6 @@ function calculatePayment() {
         remaining <= 0 ? 'paid' :
         advance > 0 ? 'partial' : 'pending';
 }
-
-document.querySelectorAll('input,select')
-    .forEach(el => el.addEventListener('input', calculatePayment));
-
-calculatePayment();
 </script>
 
 @endsection

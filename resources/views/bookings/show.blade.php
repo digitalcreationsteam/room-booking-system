@@ -21,6 +21,12 @@
 
             <div class="grid grid-cols-2 gap-4">
                 <div>
+                <p class="text-sm text-gray-600">Registration No</p>
+                <p class="font-semibold">
+                    {{ $booking->registration_no ?? 'N/A' }}
+                </p>
+                 </div>
+                <div>
                     <p class="text-sm text-gray-600">Name</p>
                     <p class="font-semibold">{{ $booking->customer_name }}</p>
                 </div>
