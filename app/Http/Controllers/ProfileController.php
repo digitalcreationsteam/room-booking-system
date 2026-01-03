@@ -66,47 +66,6 @@ class ProfileController extends Controller
             ->with('success', 'Profile updated successfully!');
     }
 
-    // public function update(Request $request)
-    // {
-    //     $user = $request->user();
-
-    //     // ================= USER VALIDATION =================
-    //     $request->validate([
-    //         'name'  => 'required|string|max:255',
-    //         'email' => 'required|email|max:255',
-    //     ]);
-
-    //     $user->update([
-    //         'name'  => $request->name,
-    //         'email' => $request->email,
-    //     ]);
-
-    //     // ================= HOTEL VALIDATION =================
-    //     $request->validate([
-    //         'hotel_name'       => 'required|string|max:255',
-    //         'hotel_address'    => 'nullable|string',
-    //         'hotel_gst_number' => 'nullable|string|max:20',
-    //         'hotel_mobile'     => 'nullable|string|max:15',
-    //         'hotel_telephone'  => 'nullable|string|max:15',
-    //         'hotel_email'      => 'nullable|email',
-    //     ]);
-
-    //     Hotel::updateOrCreate(
-    //         ['user_id' => $user->id],
-    //         [
-    //             'hotel_name'       => $request->hotel_name,
-    //             'hotel_address'    => $request->hotel_address,
-    //             'hotel_gst_number' => $request->hotel_gst_number,
-    //             'hotel_mobile'     => $request->hotel_mobile,
-    //             'hotel_telephone'  => $request->hotel_telephone,
-    //             'hotel_email'      => $request->hotel_email,
-    //         ]
-    //     );
-
-    //     return Redirect::route('profile.edit')
-    //         ->with('success', 'Profile & Hotel details updated successfully');
-    // }
-
     /**
      * Delete the user's account.
      */
@@ -124,4 +83,203 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
+
+    // ============================================
+    // LICENSE MANAGEMENT METHODS
+    // ============================================
+
+    /**
+     * Get Machine ID for License Generation
+     * Route: GET /profile/get-machine-id
+     */
+    public function getMachineId()
+    {
+        $machineId = $this->generateMachineId();
+
+        return response()->json([
+            'success' => true,
+            'machine_id' => $machineId,
+            'message' => 'Copy this Machine ID and send to admin for license generation'
+        ]);
+    }
+
+    /**
+     * Show License Management Page
+     * Route: GET /profile/license
+     */
+    public function showLicense(Request $request): View
+    {
+        $hotel = $request->user()->hotel;
+
+        $licenseInfo = null;
+        $daysRemaining = null;
+
+        if ($hotel && $hotel->license_key) {
+            $licenseData = json_decode(base64_decode($hotel->license_key), true);
+
+            if ($licenseData) {
+                $expiry = strtotime($licenseData['expiry']);
+                $today = time();
+                $daysRemaining = ceil(($expiry - $today) / 86400);
+
+                $licenseInfo = [
+                    'email' => $licenseData['email'],
+                    'expiry' => $licenseData['expiry'],
+                    'machine_id' => $licenseData['machine_id'],
+                    'days_remaining' => $daysRemaining,
+                    'is_expired' => $daysRemaining < 0,
+                    'is_expiring_soon' => $daysRemaining <= 7 && $daysRemaining >= 0
+                ];
+            }
+        }
+
+        return view('profile.license', [
+            'user' => $request->user(),
+            'hotel' => $hotel,
+            'machine_id' => $this->generateMachineId(),
+            'license_info' => $licenseInfo
+        ]);
+    }
+
+    /**
+     * Activate or Update License Key
+     * Route: POST /profile/license/activate
+     */
+    public function activateLicense(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'license_key' => 'required|string'
+        ]);
+
+        $user = $request->user();
+        $hotel = $user->hotel;
+
+        if (!$hotel) {
+            return redirect()
+                ->back()
+                ->with('error', 'Please create hotel profile first');
+        }
+
+        // Validate license key
+        $validation = $this->validateLicenseKey($request->license_key);
+
+        if (!$validation['valid']) {
+            return redirect()
+                ->back()
+                ->with('error', $validation['message']);
+        }
+
+        // Update license in hotel
+        $hotel->update([
+            'license_key' => $request->license_key,
+            'license_expiry' => $validation['expiry']
+        ]);
+
+        return redirect()
+            ->route('profile.license')
+            ->with('success', 'License activated successfully! Valid until ' . $validation['expiry']);
+    }
+
+    /**
+     * Renew License (same as activate, different message)
+     * Route: POST /profile/license/renew
+     */
+    public function renewLicense(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'license_key' => 'required|string'
+        ]);
+
+        $user = $request->user();
+        $hotel = $user->hotel;
+
+        if (!$hotel) {
+            return redirect()
+                ->back()
+                ->with('error', 'Hotel profile not found');
+        }
+
+        // Validate new license key
+        $validation = $this->validateLicenseKey($request->license_key);
+
+        if (!$validation['valid']) {
+            return redirect()
+                ->back()
+                ->with('error', $validation['message']);
+        }
+
+        // Update license
+        $hotel->update([
+            'license_key' => $request->license_key,
+            'license_expiry' => $validation['expiry']
+        ]);
+
+        return redirect()
+            ->route('profile.license')
+            ->with('success', 'License renewed successfully! New expiry date: ' . $validation['expiry']);
+    }
+
+    // ============================================
+    // HELPER METHODS
+    // ============================================
+
+    /**
+     * Generate Machine ID
+     */
+    private function generateMachineId(): string
+    {
+        return substr(md5(
+            php_uname() .
+            disk_total_space('/') .
+            gethostname()
+        ), 0, 12);
+    }
+
+    /**
+     * Validate License Key
+     */
+    private function validateLicenseKey(string $licenseKey): array
+    {
+        // Decode license
+        $licenseData = json_decode(base64_decode($licenseKey), true);
+
+        if (!$licenseData) {
+            return [
+                'valid' => false,
+                'message' => 'Invalid license key format'
+            ];
+        }
+
+        // Check required fields
+        if (!isset($licenseData['machine_id']) || !isset($licenseData['expiry']) || !isset($licenseData['email'])) {
+            return [
+                'valid' => false,
+                'message' => 'License key is incomplete or corrupted'
+            ];
+        }
+
+        // Check machine ID match
+        $currentMachineId = $this->generateMachineId();
+        if ($licenseData['machine_id'] !== $currentMachineId) {
+            return [
+                'valid' => false,
+                'message' => 'This license key is not valid for this machine. Machine ID mismatch.'
+            ];
+        }
+
+        // Check expiry date
+        if (strtotime($licenseData['expiry']) < time()) {
+            return [
+                'valid' => false,
+                'message' => 'License key has expired. Please contact admin for renewal.'
+            ];
+        }
+
+        return [
+            'valid' => true,
+            'expiry' => $licenseData['expiry'],
+            'email' => $licenseData['email']
+        ];
+    }
 }
+

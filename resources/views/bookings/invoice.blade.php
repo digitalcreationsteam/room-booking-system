@@ -251,8 +251,8 @@
         <div class="left-column left-split">
             <div class="left-top">
                 hereby certify that our Registration certificate Under the B.S.T.Act 1959 is in
-                force on the date on which the sales of the good specified in this bill/ cash memorandum 
-                is made by me/us and that the transaction of sale covered by this bill/cash Memorandum has 
+                force on the date on which the sales of the good specified in this bill/ cash memorandum
+                is made by me/us and that the transaction of sale covered by this bill/cash Memorandum has
                 been effected by me/us in the regular course of my/our business.
             </div>
 

@@ -18,6 +18,8 @@ class Hotel extends Model
         'hotel_l_t_number',
         'hotel_gst_number',
         'hotel_email',
+        'license_key',
+        'license_expiry'
     ];
 
 

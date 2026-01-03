@@ -99,6 +99,7 @@ class BookingController extends Controller
             $totalServiceTax += $calculation['service_tax'];
             $totalOtherCharges += $calculation['other_charges'];
         }
+    //    return $totalRoomCharges;
 
         $totalAmount = $totalRoomCharges + $totalGst + $totalServiceTax + $totalOtherCharges;
         $advancePayment = $validated['advance_payment'] ?? 0;
