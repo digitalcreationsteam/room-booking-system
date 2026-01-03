@@ -57,7 +57,7 @@ class="absolute bg-white border rounded shadow w-full mt-1 hidden z-50 max-h-60 
     <input type="text" name="registration_no"
            value="{{ old('registration_no') }}"
            class="w-full px-3 py-2 border rounded">
-           @error('customer_mobile')
+           @error('registration_no')
 <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
 @enderror
 </div>
@@ -73,7 +73,7 @@ class="w-full px-3 py-2 border rounded">
 
 {{-- ADDRESS --}}
 <div class="mb-4">
-<label class="block text-sm font-medium mb-1">Address *</label>
+<label class="block text-sm font-medium mb-1">Address</label>
 <textarea name="customer_address" rows="2"
 class="w-full px-3 py-2 border rounded">{{ old('customer_address') }}</textarea>
 </div>
@@ -124,42 +124,66 @@ class="w-full px-3 py-2 border rounded">
 <label class="block text-sm mb-1">Check-in *</label>
 <input type="datetime-local" name="check_in"
 class="w-full px-3 py-2 border rounded">
+  @error('check_in')
+<p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+@enderror
 </div>
 
 <div>
 <label class="block text-sm mb-1">Check-out *</label>
 <input type="datetime-local" name="check_out"
 class="w-full px-3 py-2 border rounded">
+  @error('check_out')
+<p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+@enderror
 </div>
 
 <div>
-<label class="block text-sm mb-1">Adults *</label>
+<label class="block text-sm mb-1">Adults </label>
 <input type="number" name="number_of_adults"
 value="1" min="1"
 class="w-full px-3 py-2 border rounded">
+ @error('number_of_adults')
+<p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+@enderror
 </div>
 
 <div>
-<label class="block text-sm mb-1">Children *</label>
+<label class="block text-sm mb-1">Children </label>
 <input type="number" name="number_of_children"
 value="0" min="0"
 class="w-full px-3 py-2 border rounded">
+ @error('number_of_children')
+<p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+@enderror
 </div>
 
 </div>
 
-<label class="block text-sm font-medium mb-2">Select Rooms *</label>
-<div class="grid grid-cols-2 gap-4 max-h-64 overflow-y-auto border rounded p-4">
-@foreach ($rooms as $room)
-<label class="flex items-center p-3 border rounded hover:bg-gray-50">
-<input type="checkbox" name="room_ids[]" value="{{ $room->id }}" class="mr-3">
-<div>
-<div class="font-semibold">Room {{ $room->room_number }}</div>
-<div class="text-sm text-gray-600">{{ $room->roomType->name }}</div>
-<div class="text-sm text-blue-600">₹{{ number_format($room->base_price,2) }}</div>
-</div>
-</label>
-@endforeach
+
+<div class="mb-4">
+   <label class="block text-sm font-medium mb-2">Select Rooms *</label>
+
+    <div class="grid grid-cols-2 gap-4 max-h-64 overflow-y-auto border rounded p-4">
+        @foreach ($rooms as $room)
+            <label class="flex items-center p-3 border rounded hover:bg-gray-50">
+                <input type="checkbox"
+                       name="room_ids[]"
+                       value="{{ $room->id }}"
+                       class="mr-3">
+
+                <div>
+                    <div class="font-semibold">Room {{ $room->room_number }}</div>
+                    <div class="text-sm text-gray-600">{{ $room->roomType->name }}</div>
+                    <div class="text-sm text-blue-600">₹{{ number_format($room->base_price,2) }}</div>
+                </div>
+            </label>
+        @endforeach
+    </div>
+
+    @error('room_ids')
+        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+    @enderror
 </div>
 
 </div>

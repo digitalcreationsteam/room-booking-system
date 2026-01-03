@@ -26,24 +26,33 @@
 
     <div class="grid grid-cols-2 gap-4 mb-4">
         <div>
-            <label>Registration No</label>
+            <label>Registration No *</label>
             <input type="text" name="registration_no"
                 value="{{ old('registration_no', $booking->registration_no) }}"
-                class="w-full border rounded px-3 py-2" required>
+                class="w-full border rounded px-3 py-2"> 
+                  @error('registration_no')
+                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                @enderror
         </div>
 
         <div>
             <label>Customer Name *</label>
             <input type="text" name="customer_name"
                 value="{{ old('customer_name', $booking->customer_name) }}"
-                class="w-full border rounded px-3 py-2" required>
+                class="w-full border rounded px-3 py-2" >
+                  @error('customer_name')
+                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                @enderror
         </div>
 
         <div>
             <label>Mobile *</label>
             <input type="text" name="customer_mobile"
                 value="{{ old('customer_mobile', $booking->customer_mobile) }}"
-                class="w-full border rounded px-3 py-2" required>
+                class="w-full border rounded px-3 py-2" >
+                  @error('customer_mobile')
+                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                @enderror
         </div>
     </div>
 
@@ -55,8 +64,8 @@
     </div>
 
     <div class="mb-4">
-        <label>Address *</label>
-        <textarea name="customer_address" required
+        <label>Address </label>
+        <textarea name="customer_address" 
             class="w-full border rounded px-3 py-2">{{ old('customer_address', $booking->customer_address) }}</textarea>
     </div>
 

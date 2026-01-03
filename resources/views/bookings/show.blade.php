@@ -157,7 +157,7 @@
     <div>
         <!-- Actions -->
        <div class="bg-white rounded-lg shadow p-6 mb-6">
-    <h3 class="text-lg font-semibold mb-4">Actions</h3>
+    <!-- <h3 class="text-lg font-semibold mb-4">Actions</h3> -->
 
     <div class="flex flex-wrap gap-2">
         <a href="{{ route('bookings.invoice', $booking) }}" target="_blank"
@@ -204,9 +204,27 @@
                     <span>Room Charges:</span>
                     <span class="font-semibold">₹{{ number_format($booking->room_charges, 2) }}</span>
                 </div>
+               <div class="flex justify-between">
+                    <span>
+                        Discount Charges
+                        @if($booking->discount_type === 'percentage')
+                            {{ $booking->discount_value }}%
+                        @else
+                            ₹{{ $booking->discount_value }}
+                        @endif
+                    </span>
+                    <span class="font-semibold">
+                        - ₹{{ number_format($booking->discount_amount, 2) }}
+                    </span>
+                </div>
+
                 <div class="flex justify-between">
-                    <span>GST:</span>
-                    <span class="font-semibold">₹{{ number_format($booking->gst_amount, 2) }}</span>
+                    <span>
+                        GST {{ $booking->gst_percentage }}%:
+                    </span>
+                    <span class="font-semibold">
+                        ₹{{ number_format($booking->gst_amount, 2) }}
+                    </span>
                 </div>
                 <div class="flex justify-between">
                     <span>Service Tax:</span>
@@ -214,8 +232,14 @@
                 </div>
                 @if($booking->extra_charges > 0)
                     <div class="flex justify-between">
-                        <span>Extra Charges:</span>
+                        <span>Extra Charges :</span>
                         <span class="font-semibold">₹{{ number_format($booking->extra_charges, 2) }}</span>
+                    </div>
+                @endif
+                 @if($booking->other_charges > 0)
+                    <div class="flex justify-between">
+                        <span>Other Charges:</span>
+                        <span class="font-semibold">₹{{ number_format($booking->other_charges, 2) }}</span>
                     </div>
                 @endif
                 <div class="flex justify-between border-t pt-2 text-lg">
