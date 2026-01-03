@@ -80,20 +80,99 @@
     </div>
 </div>
 
-{{-- BOOKING DETAILS --}}
+{{-- ================= BOOKING DETAILS ================= --}}
 <div class="bg-white rounded-lg shadow p-6">
     <h3 class="text-lg font-semibold mb-4">Booking Details</h3>
 
-    <div class="grid grid-cols-2 gap-4">
-        <input type="number" name="number_of_adults" min="1"
-            value="{{ $booking->number_of_adults }}"
-            class="border rounded px-3 py-2" placeholder="Adults">
+    {{-- Dates --}}
+    <div class="grid grid-cols-3 gap-4 mb-4">
 
-        <input type="number" name="number_of_children" min="0"
-            value="{{ $booking->number_of_children }}"
-            class="border rounded px-3 py-2" placeholder="Children">
+        {{-- Check-in --}}
+        <div>
+            <label class="block text-sm mb-1">Check-in *</label>
+            <input type="datetime-local"
+                   name="check_in"
+                   value="{{ old('check_in', optional($booking->check_in)->format('Y-m-d\TH:i')) }}"
+                   class="w-full px-3 py-2 border rounded">
+            @error('check_in')
+                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
+        {{-- Check-out --}}
+        <div>
+            <label class="block text-sm mb-1">Check-out *</label>
+            <input type="datetime-local"
+                   name="check_out"
+                   value="{{ old('check_out', optional($booking->check_out)->format('Y-m-d\TH:i')) }}"
+                   class="w-full px-3 py-2 border rounded">
+            @error('check_out')
+                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
+        {{-- Adults --}}
+        <div>
+            <label class="block text-sm mb-1">Adults</label>
+            <input type="number"
+                   name="number_of_adults"
+                   min="1"
+                   value="{{ old('number_of_adults', $booking->number_of_adults) }}"
+                   class="w-full px-3 py-2 border rounded">
+            @error('number_of_adults')
+                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
+        {{-- Children --}}
+        <div>
+            <label class="block text-sm mb-1">Children</label>
+            <input type="number"
+                   name="number_of_children"
+                   min="0"
+                   value="{{ old('number_of_children', $booking->number_of_children) }}"
+                   class="w-full px-3 py-2 border rounded">
+            @error('number_of_children')
+                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+    </div>
+
+    {{-- ROOMS --}}
+    <div class="mb-4">
+        <label class="block text-sm font-medium mb-2">Select Rooms *</label>
+
+        <div class="grid grid-cols-2 gap-4 max-h-64 overflow-y-auto border rounded p-4">
+
+            @foreach ($rooms as $room)
+                <label class="flex items-center p-3 border rounded hover:bg-gray-50">
+
+                   <input type="checkbox"
+                        name="room_ids[]"
+                        value="{{ $room->id }}"
+                        class="mr-3 room-checkbox"
+                        data-price="{{ $room->base_price }}"
+                        {{ in_array($room->id, old('room_ids', $booking->rooms->pluck('id')->toArray())) ? 'checked' : '' }}>
+
+
+                    <div>
+                        <div class="font-semibold">Room {{ $room->room_number }}</div>
+                        <div class="text-sm text-gray-600">{{ $room->roomType->name }}</div>
+                        <div class="text-sm text-blue-600">
+                            ₹{{ number_format($room->base_price, 2) }}
+                        </div>
+                    </div>
+                </label>
+            @endforeach
+
+        </div>
+
+        @error('room_ids')
+            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+        @enderror
     </div>
 </div>
+
 
 </div>
 
@@ -107,8 +186,10 @@
     <label>Room Charges *</label>
     <input type="number" step="0.01" id="room_charges" name="room_charges"
         value="{{ $booking->room_charges }}"
-        class="w-full border rounded px-3 py-2">
+        class="w-full border rounded px-3 py-2 bg-gray-100"
+        readonly>
 </div>
+
 
 <div class="mb-3">
     <label>Discount</label>
@@ -234,6 +315,37 @@ function calculatePayment() {
         remaining <= 0 ? 'paid' :
         advance > 0 ? 'partial' : 'pending';
 }
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const roomCheckboxes = document.querySelectorAll('.room-checkbox');
+    const roomChargesInput = document.getElementById('room_charges');
+
+    function updateRoomCharges() {
+        let total = 0;
+
+        roomCheckboxes.forEach(cb => {
+            if (cb.checked) {
+                total += parseFloat(cb.dataset.price || 0);
+            }
+        });
+
+        roomChargesInput.value = total.toFixed(2);
+
+        // mark as user-changed so calculation runs
+        userChanged = true;
+        calculatePayment();
+    }
+
+    // attach change event
+    roomCheckboxes.forEach(cb => {
+        cb.addEventListener('change', updateRoomCharges);
+    });
+
+    // calculate on page load (edit booking)
+    updateRoomCharges();
+});
 </script>
 
 @endsection

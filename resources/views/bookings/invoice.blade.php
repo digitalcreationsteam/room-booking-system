@@ -251,8 +251,21 @@
             <td>{{ $room->room->room_number }}</td>
             <td>{{ $room->room->roomType->name }}</td>
             <td class="right">₹{{ number_format($room->room_price, 2) }}</td>
-            <td class="center">{{ $booking->number_of_nights }}</td>
-            <td class="right">₹{{ number_format($room->room_price * $booking->number_of_nights, 2) }}</td>
+           <td class="center">
+                @if($booking->number_of_nights > 0)
+                    {{ $booking->number_of_nights }}
+                @else
+                   
+                @endif
+            </td>
+            <td class="right">
+                ₹{{ number_format(
+                    $booking->number_of_nights > 0
+                        ? $room->room_price * $booking->number_of_nights
+                        : $room->room_price,
+                    2
+                ) }}
+            </td>
         </tr>
          @endforeach
     </tbody>

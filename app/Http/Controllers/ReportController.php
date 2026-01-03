@@ -118,21 +118,41 @@ class ReportController extends Controller
         return view('reports.tax', compact('taxSummary', 'gstBreakdown', 'fromDate', 'toDate', 'bookings'));
     }
 
-    public function exportsTax(Request $request)
-    {
-        $fromDate = $request->from_date ?? Carbon::now()->startOfMonth();
-        $toDate   = $request->to_date ?? Carbon::now()->endOfMonth();
+    // public function exportsTax(Request $request)
+    // {
+    //     $fromDate = $request->from_date ?? Carbon::now()->startOfMonth();
+    //     $toDate   = $request->to_date ?? Carbon::now()->endOfMonth();
 
-        $bookings = Booking::with(['bookingRooms.room'])
-            ->whereBetween('created_at', [$fromDate, $toDate])
-            ->where('booking_status', '!=', 'cancelled')
-            ->get();
+    //     $bookings = Booking::with(['bookingRooms.room'])
+    //         ->whereBetween('created_at', [$fromDate, $toDate])
+    //         ->where('booking_status', '!=', 'cancelled')
+    //         ->get();
 
-        $filename = 'tax_report_' . date('Y-m-d_His') . '.xlsx';
+    //     $filename = 'tax_report_' . date('Y-m-d_His') . '.xlsx';
 
-        return Excel::download(new TaxReportExport($bookings), $filename);
-    }
+    //     return Excel::download(new TaxReportExport($bookings), $filename);
+    // }
 
+
+public function exportsTax(Request $request)
+{
+    $fromDate = $request->from_date
+        ? Carbon::parse($request->from_date)->startOfDay()
+        : Carbon::now()->startOfMonth();
+
+    $toDate = $request->to_date
+        ? Carbon::parse($request->to_date)->endOfDay()
+        : Carbon::now()->endOfMonth();
+
+    $bookings = Booking::with(['bookingRooms.room'])
+        ->whereBetween('created_at', [$fromDate, $toDate])
+        ->where('booking_status', '!=', 'cancelled')
+        ->get();
+
+    $filename = 'tax_report_' . now()->format('Y-m-d_His') . '.xlsx';
+
+    return Excel::download(new TaxReportExport($bookings), $filename);
+}
     public function occupancy(Request $request)
     {
         $fromDate = $request->from_date ?? Carbon::now()->startOfMonth();

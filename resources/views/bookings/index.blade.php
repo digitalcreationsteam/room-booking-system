@@ -65,6 +65,7 @@
     <table class="w-full">
         <thead class="bg-gray-50">
             <tr>
+                <th class="px-6 py-3 text-xs uppercase">Sr No</th>
                 <th class="px-6 py-3 text-xs uppercase">Booking #</th>
                 <th class="px-6 py-3 text-xs uppercase">Reg. No</th>
                 <th class="px-6 py-3 text-xs uppercase">Customer</th>
@@ -80,6 +81,7 @@
         <tbody class="divide-y">
         @forelse($bookings as $booking)
             <tr>
+                <td class="px-6 py-4 font-semibold">{{ $loop->iteration }}</td>
                 <td class="px-6 py-4 font-semibold">{{ $booking->booking_number }}</td>
                 <td class="px-6 py-4">
                     {{ $booking->registration_no ?? '-' }}
