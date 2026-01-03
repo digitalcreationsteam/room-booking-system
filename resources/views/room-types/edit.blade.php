@@ -13,7 +13,7 @@
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2">Room Type Name *</label>
                 <input type="text" name="name" value="{{ old('name', $roomType->name) }}"
-                    class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500" required>
+                    class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500" >
                 @error('name')
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                 @enderror
@@ -28,7 +28,7 @@
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2">Base Price (₹) *</label>
                 <input type="number" name="base_price" value="{{ old('base_price', $roomType->base_price) }}" step="0.01"
-                    class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500" required>
+                    class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500" >
                 @error('base_price')
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                 @enderror

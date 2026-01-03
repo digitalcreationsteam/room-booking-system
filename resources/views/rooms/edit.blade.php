@@ -14,7 +14,7 @@
             {{-- Room Number & Room Type --}}
             <div class="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Room Number</label>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Room Number *</label>
                     <input type="text" name="room_number"
                         value="{{ old('room_number', $room->room_number) }}"
                         class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500">
@@ -25,7 +25,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Room Type</label>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Room Type *</label>
                     <select name="room_type_id"
                         class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500">
                         <option value="">Select Room Type</option>
@@ -46,7 +46,7 @@
             {{-- Floor & Base Price --}}
             <div class="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Floor Number</label>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Floor Number *</label>
                     <input type="number" name="floor_number"
                         value="{{ old('floor_number', $room->floor_number) }}"
                         class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500">
@@ -57,7 +57,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Base Price (₹)</label>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Base Price (₹) *</label>
                     <input type="number" name="base_price"
                         value="{{ old('base_price', $room->base_price) }}" step="0.01"
                         class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500">
@@ -71,7 +71,7 @@
             {{-- Taxes --}}
             <div class="grid grid-cols-3 gap-4 mb-4">
                 <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2">GST %</label>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">GST % </label>
                     <input type="number" name="gst_percentage"
                         value="{{ old('gst_percentage', $room->gst_percentage) }}" step="0.01"
                         class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500">
@@ -82,7 +82,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Service Tax %</label>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Service Tax % </label>
                     <input type="number" name="service_tax_percentage"
                         value="{{ old('service_tax_percentage', $room->service_tax_percentage) }}" step="0.01"
                         class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500">
@@ -93,7 +93,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Other Charges (₹)</label>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Other Charges (₹) </label>
                     <input type="number" name="other_charges"
                         value="{{ old('other_charges', $room->other_charges) }}" step="0.01"
                         class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500">
@@ -106,7 +106,7 @@
 
             {{-- Amenities --}}
             <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2">Amenities</label>
+                <label class="block text-gray-700 text-sm font-bold mb-2">Amenities </label>
                 <textarea name="amenities" rows="2"
                     class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500"
                     placeholder="AC, WiFi, TV, Mini Bar, etc.">{{ old('amenities', $room->amenities) }}</textarea>
@@ -118,7 +118,7 @@
 
             {{-- Status --}}
             <div class="mb-6">
-                <label class="block text-gray-700 text-sm font-bold mb-2">Status</label>
+                <label class="block text-gray-700 text-sm font-bold mb-2">Status *</label>
                 <select name="status"
                     class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500">
                     <option value="">Select Status</option>

@@ -72,38 +72,41 @@ class Room extends Model
     // }
 
 
-    public function calculateTotalPrice(int $nights)
-    {
-        $roomCharges   = 0;
-        $gstAmount     = 0;
-        $serviceTax    = 0;
-        $otherCharges  = 0;
+public function calculateTotalPrice(int $nights)
+{
+    // ✅ Minimum 1 night charge
+    $chargeableNights = max(1, $nights);
 
-        // Night-wise calculation
-        for ($i = 1; $i <= $nights; $i++) {
+    $roomCharges   = 0;
+    $gstAmount     = 0;
+    $serviceTax    = 0;
+    $otherCharges  = 0;
 
-            $dailyRoomPrice   = $this->base_price;
-            $dailyOtherCharge = $this->other_charges ?? 0;
+    for ($i = 1; $i <= $chargeableNights; $i++) {
 
-            $dailyGst = ($dailyRoomPrice * $this->gst_percentage) / 100;
-            $dailyServiceTax = ($dailyRoomPrice * $this->service_tax_percentage) / 100;
+        $dailyRoomPrice   = $this->base_price;
+        $dailyOtherCharge = $this->other_charges ?? 0;
 
-            $roomCharges  += $dailyRoomPrice;
-            $gstAmount    += $dailyGst;
-            $serviceTax   += $dailyServiceTax;
-            $otherCharges += $dailyOtherCharge;
-        }
+        $dailyGst = ($dailyRoomPrice * $this->gst_percentage) / 100;
+        $dailyServiceTax = ($dailyRoomPrice * $this->service_tax_percentage) / 100;
 
-        $total = $roomCharges + $gstAmount + $serviceTax + $otherCharges;
-
-        return [
-            'room_charges'  => round($roomCharges, 2),
-            'gst_amount'    => round($gstAmount, 2),
-            'service_tax'   => round($serviceTax, 2),
-            'other_charges' => round($otherCharges, 2),
-            'total'         => round($total, 2),
-        ];
+        $roomCharges  += $dailyRoomPrice;
+        $gstAmount    += $dailyGst;
+        $serviceTax   += $dailyServiceTax;
+        $otherCharges += $dailyOtherCharge;
     }
+
+    $total = $roomCharges + $gstAmount + $serviceTax + $otherCharges;
+
+    return [
+        'room_charges'  => round($roomCharges, 2),
+        'gst_amount'    => round($gstAmount, 2),
+        'service_tax'   => round($serviceTax, 2),
+        'other_charges' => round($otherCharges, 2),
+        'total'         => round($total, 2),
+    ];
+}
+
 
 
 }

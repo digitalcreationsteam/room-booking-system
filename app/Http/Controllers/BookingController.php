@@ -76,6 +76,7 @@ class BookingController extends Controller
         $checkIn = Carbon::parse($validated['check_in']);
         $checkOut = Carbon::parse($validated['check_out']);
         $nights = $checkIn->diffInDays($checkOut);
+        // $nights = max(1, $checkIn->diffInDays($checkOut));
 
         // Calculate total charges
         $totalRoomCharges = 0;
@@ -274,6 +275,7 @@ class BookingController extends Controller
         // ✅ Validation
         $validated = $request->validate([
             'customer_name'       => 'required|string|max:255',
+            'registration_no'     => 'required|string|max:255',
             'customer_mobile'     => 'required|string|max:20',
             'customer_email'      => 'nullable|email',
             'customer_address'    => 'required|string',
