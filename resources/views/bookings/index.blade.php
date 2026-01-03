@@ -173,8 +173,7 @@
         @endforelse
         </tbody>
     </table>
-
-    <div class="px-6 py-4">
+    <div class="mt-4 px-6 mb-4">
         {{ $bookings->links() }}
     </div>
 </div>

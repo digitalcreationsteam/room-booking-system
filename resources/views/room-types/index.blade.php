@@ -92,6 +92,9 @@
             @endforelse
         </tbody>
     </table>
+    <div class="mt-4 px-6 mb-4">
+    {{ $roomTypes->links() }}
+</div>
 </div>
 
 @endsection
