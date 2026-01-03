@@ -16,10 +16,14 @@
             <input type="date" name="to_date" value="{{ $toDate->format('Y-m-d') }}"
                 class="w-full px-3 py-2 border rounded">
         </div>
-        <div class="flex items-end">
-            <button type="submit" class="w-full bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
+         <div class="flex items-end gap-2">
+             <button type="submit" class="w-full bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
                 <i class="fas fa-search mr-2"></i> Filter
             </button>
+            <a href="{{ route('reports.export-tax', request()->all()) }}"
+                class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                <i class="fas fa-file-excel"></i>
+            </a>
         </div>
     </form>
 </div>

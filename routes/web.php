@@ -50,6 +50,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('reports/tax', [ReportController::class, 'tax'])->name('reports.tax');
     Route::get('reports/occupancy', [ReportController::class, 'occupancy'])->name('reports.occupancy');
     Route::get('reports/export-bookings', [ReportController::class, 'exportBookings'])->name('reports.export-bookings');
+    Route::get('reports/export-tax', [ReportController::class, 'exportsTax'])->name('reports.export-tax');
 
     // Route::resource('profile', ProfileController::class);
 
