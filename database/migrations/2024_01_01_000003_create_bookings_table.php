@@ -15,10 +15,10 @@ return new class extends Migration
             $table->string('booking_number')->unique();
 
             // Customer Details
-            $table->string('customer_name');
-            $table->string('customer_mobile');
+            $table->string('customer_name')->nullable();
+            $table->string('customer_mobile')->nullable();
             $table->string('customer_email')->nullable();
-            $table->text('customer_address');
+            $table->text('customer_address')->nullable();
             $table->string('id_proof_type')->nullable();
             $table->string('id_proof_number')->nullable();
             $table->string('company_name')->nullable();

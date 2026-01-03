@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use PDF;
+use App\Models\Customer;
 
 
 class BookingController extends Controller
@@ -48,103 +49,7 @@ class BookingController extends Controller
         return view('bookings.create', compact('roomTypes', 'rooms'));
     }
 
-    // public function store(Request $request)
-    // {
-    //     $validated = $request->validate([
-    //         'customer_name' => 'required|string|max:255',
-    //         'customer_mobile' => 'required|string|max:20',
-    //         'customer_email' => 'nullable|email',
-    //         'customer_address' => 'required|string',
-    //         'id_proof_type' => 'nullable',
-    //         'id_proof_number' => 'nullable',
-    //         'company_name' => 'nullable|string|max:255',
-    //         'gst_number' => 'nullable|string|max:15',
-    //         'check_in' => 'required|date',
-    //         'check_out' => 'required|date|after:check_in',
-    //         'number_of_adults' => 'required|integer|min:1',
-    //         'number_of_children' => 'nullable|integer',
-    //         'number_of_nights' => 'nullable|integer|min:1',
-    //         'room_ids' => 'required|array|min:1',
-    //         'room_ids.*' => 'exists:rooms,id',
-    //         'advance_payment' => 'nullable|numeric|min:0',
-    //         'payment_mode' => 'nullable|in:cash,card,upi,bank_transfer'
-    //     ]);
-
-    //     $checkIn = Carbon::parse($validated['check_in']);
-    //     $checkOut = Carbon::parse($validated['check_out']);
-    //     $nights = $checkIn->diffInDays($checkOut);
-
-    //     // Calculate total charges
-    //     $totalRoomCharges = 0;
-    //     $totalGst = 0;
-    //     $totalServiceTax = 0;
-    //     $totalOtherCharges = 0;
-
-    //     $selectedRooms = Room::whereIn('id', $validated['room_ids'])->get();
-
-    //     foreach ($selectedRooms as $room) {
-    //         $calculation = $room->calculateTotalPrice($nights);
-    //         $totalRoomCharges += $calculation['room_charges'];
-    //         $gstPercentage += $room['gst_percentage'];
-    //         $totalGst += $calculation['gst_amount'];
-    //         $totalServiceTax += $calculation['service_tax'];
-    //         $totalOtherCharges += $calculation['other_charges'];
-    //     }
-
-    //     $totalAmount = $totalRoomCharges + $totalGst + $totalServiceTax + $totalOtherCharges;
-    //     $advancePayment = $validated['advance_payment'] ?? 0;
-    //     $remainingAmount = $totalAmount - $advancePayment;
-
-    //     $paymentStatus = 'pending';
-    //     if ($advancePayment >= $totalAmount) {
-    //         $paymentStatus = 'paid';
-    //     } elseif ($advancePayment > 0) {
-    //         $paymentStatus = 'partial';
-    //     }
-
-    //     // Create booking
-    //     $booking = Booking::create([
-    //         'customer_name' => $validated['customer_name'],
-    //         'customer_mobile' => $validated['customer_mobile'],
-    //         'customer_email' => $validated['customer_email'],
-    //         'customer_address' => $validated['customer_address'],
-    //         'id_proof_type' => $validated['id_proof_type'],
-    //         'id_proof_number' => $validated['id_proof_number'],
-    //         'company_name' => $validated['company_name'],
-    //         'gst_number' => $validated['gst_number'],
-    //         'check_in' => $checkIn,
-    //         'check_out' => $checkOut,
-    //         'number_of_adults' => $validated['number_of_adults'],
-    //         'number_of_children' => $validated['number_of_children'],
-    //         'number_of_nights' => $nights,
-    //         'room_charges' => $totalRoomCharges,
-    //         'gst_percentage' => $totalGst,
-    //         'gst_amount' => $totalGst,
-    //         'service_tax' => $totalServiceTax,
-    //         'other_charges' => $totalOtherCharges,
-    //         'total_amount' => $totalAmount,
-    //         'advance_payment' => $advancePayment,
-    //         'remaining_amount' => $remainingAmount,
-    //         'payment_status' => $paymentStatus,
-    //         'payment_mode' => $validated['payment_mode'],
-    //         'created_by' => auth()->id()
-    //     ]);
-
-    //     // Attach rooms to booking
-    //     foreach ($selectedRooms as $room) {
-    //         $booking->bookingRooms()->create([
-    //             'room_id' => $room->id,
-    //             'room_price' => $room->base_price
-    //         ]);
-
-    //         // Update room status
-    //         $room->update(['status' => 'booked']);
-    //     }
-
-    //     return redirect()->route('bookings.show', $booking)
-    //         ->with('success', 'Booking created successfully!');
-    // }
-
+    // Old code for store method
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -219,8 +124,25 @@ class BookingController extends Controller
             }
         }
 
+
+        $customer = Customer::where('customer_mobile', $validated['customer_mobile'])->first();
+
+        if (!$customer) {
+            $customer = Customer::create([
+                'customer_name'    => $validated['customer_name'],
+                'customer_mobile'  => $validated['customer_mobile'],
+                'customer_email'   => $validated['customer_email'],
+                'customer_address' => $validated['customer_address'],
+                'id_proof_type'    => $validated['id_proof_type'],
+                'id_proof_number'  => $validated['id_proof_number'],
+                'company_name'     => $validated['company_name'],
+                'gst_number'       => $validated['gst_number'],
+            ]);
+        }
+
         // Create booking
         $booking = Booking::create([
+            'customer_id' => $customer->id,
             'customer_name' => $validated['customer_name'],
             'customer_mobile' => $validated['customer_mobile'],
             'customer_email' => $validated['customer_email'],
@@ -262,9 +184,80 @@ class BookingController extends Controller
             ->with('success', 'Booking created successfully!');
     }
 
+    // public function store(Request $request)
+    // {
+    //     $validated = $request->validate([
+    //         'customer_name'     => 'required|string|max:255',
+    //         'customer_mobile'   => 'required|string|max:20',
+    //         'customer_email'    => 'nullable|email',
+    //         'customer_address'  => 'required|string',
+    //         'id_proof_type'     => 'nullable|string',
+    //         'id_proof_number'   => 'nullable|string',
+    //         'company_name'      => 'nullable|string|max:255',
+    //         'gst_number'        => 'nullable|string|max:15',
+
+    //         // booking fields...
+
+
+
+    //         'check_in' => 'required|date',
+    //         'check_out' => 'required|date|after:check_in',
+    //         'number_of_adults' => 'required|integer|min:1',
+    //         'number_of_children' => 'nullable|integer|min:0',
+    //         'number_of_nights' => 'nullable|integer|min:1',
+    //         'room_ids' => 'required|array|min:1',
+    //         'room_ids.*' => 'exists:rooms,id',
+    //         'advance_payment' => 'nullable|numeric|min:0',
+    //         'payment_mode' => 'nullable|in:cash,card,upi,bank_transfer'
+    //     ]);
+
+    //     /* 🔍 CUSTOMER CHECK */
+    //     $customer = Customer::where('customer_mobile', $validated['customer_mobile'])->first();
+
+    //     if (!$customer) {
+    //         $customer = Customer::create([
+    //             'customer_name'    => $validated['customer_name'],
+    //             'customer_mobile'  => $validated['customer_mobile'],
+    //             'customer_email'   => $validated['customer_email'],
+    //             'customer_address' => $validated['customer_address'],
+    //             'id_proof_type'    => $validated['id_proof_type'],
+    //             'id_proof_number'  => $validated['id_proof_number'],
+    //             'company_name'     => $validated['company_name'],
+    //             'gst_number'       => $validated['gst_number'],
+    //         ]);
+    //     }
+
+    //     /* 🏨 CREATE BOOKING */
+    //     $booking = Booking::create([
+    //         'customer_id'        => $customer->id,
+    //         'check_in'           => $validated['check_in'],
+    //         'check_out'          => $validated['check_out'],
+    //         'number_of_adults'   => $validated['number_of_adults'],
+    //         'created_by'         => auth()->id(),
+    //     ]);
+
+
+
+    //     return redirect()
+    //         ->route('bookings.show', $booking)
+    //         ->with('success', 'Booking created successfully!');
+    // }
+
+    // public function show(Booking $booking)
+    // {
+    //     $booking->load(['bookingRooms.room.roomType', 'extraCharges', 'creator']);
+    //     return view('bookings.show', compact('booking'));
+    // }
+
     public function show(Booking $booking)
     {
-        $booking->load(['bookingRooms.room.roomType', 'extraCharges', 'creator']);
+        $booking->load([
+            'customer',
+            'bookingRooms.room.roomType',
+            'extraCharges',
+            'creator'
+        ]);
+
         return view('bookings.show', compact('booking'));
     }
 
@@ -558,5 +551,4 @@ class BookingController extends Controller
             'hotel'
         ));
     }
-
 }
