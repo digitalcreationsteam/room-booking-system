@@ -17,11 +17,11 @@
     <table class="w-full border-collapse">
         <thead class="bg-gray-50">
             <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Base Price</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Rooms</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Actions</th>
+                <th class="px-6 py-3 text-xs uppercase text-left">Name</th>
+                <th class="px-6 py-3 text-xs uppercase text-left">Base Price</th>
+                <th class="px-6 py-3 text-xs uppercase text-left">Total Rooms</th>
+                <th class="px-6 py-3 text-xs uppercase text-left">Status</th>
+                <th class="px-6 py-3 text-xs uppercase text-center">Actions</th>
             </tr>
         </thead>
 
