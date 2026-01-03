@@ -36,7 +36,7 @@ class BookingController extends Controller
             $query->whereDate('check_out', '<=', $request->to_date);
         }
 
-        $bookings = $query->latest()->paginate(20);
+        $bookings = $query->latest()->paginate(10);
 
         return view('bookings.index', compact('bookings'));
     }

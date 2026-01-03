@@ -8,7 +8,10 @@ class RoomTypeController extends Controller
 {
     public function index()
     {
-        $roomTypes = RoomType::withCount('rooms')->latest()->get();
+        $roomTypes = RoomType::withCount('rooms')
+            ->latest()
+            ->paginate(10); 
+
         return view('room-types.index', compact('roomTypes'));
     }
 
@@ -20,10 +23,10 @@ class RoomTypeController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name'        => 'required|string|max:255',
             'description' => 'nullable|string',
-            'base_price' => 'required|numeric|min:0',
-            'is_active' => 'boolean'
+            'base_price'  => 'required|numeric|min:0',
+            'is_active'   => 'boolean',
         ]);
 
         RoomType::create($validated);
@@ -46,10 +49,10 @@ class RoomTypeController extends Controller
     public function update(Request $request, RoomType $roomType)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name'        => 'required|string|max:255',
             'description' => 'nullable|string',
-            'base_price' => 'required|numeric|min:0',
-            'is_active' => 'boolean'
+            'base_price'  => 'required|numeric|min:0',
+            'is_active'   => 'boolean',
         ]);
 
         $roomType->update($validated);
