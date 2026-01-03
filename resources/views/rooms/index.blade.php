@@ -18,13 +18,13 @@
     <table class="w-full border-collapse">
         <thead class="bg-gray-50">
             <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Room No</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Floor</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Base Price</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">GST %</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Actions</th>
+                <th class="px-6 py-3 text-xs uppercase text-left">Room No</th>
+                <th class="px-6 py-3 text-xs uppercase text-left">Type</th>
+                <th class="px-6 py-3 text-xs uppercase text-left">Floor</th>
+                <th class="px-6 py-3 text-xs uppercase text-left">Base Price</th>
+                <th class="px-6 py-3 text-xs uppercase text-left">GST %</th>
+                <th class="px-6 py-3 text-xs uppercase text-left">Status</th>
+                <th class="px-6 py-3 text-xs uppercase text-center">Actions</th>
             </tr>
         </thead>
 

@@ -65,13 +65,13 @@
     <table class="w-full">
         <thead class="bg-gray-50">
             <tr>
-                <th class="px-6 py-3 text-xs uppercase">Booking #</th>
-                <th class="px-6 py-3 text-xs uppercase">Customer</th>
-                <th class="px-6 py-3 text-xs uppercase">Dates</th>
-                <th class="px-6 py-3 text-xs uppercase">Rooms</th>
-                <th class="px-6 py-3 text-xs uppercase">Amount</th>
-                <th class="px-6 py-3 text-xs uppercase">Payment</th>
-                <th class="px-6 py-3 text-xs uppercase">Status</th>
+                <th class="px-6 py-3 text-xs uppercase text-left">Booking #</th>
+                <th class="px-6 py-3 text-xs uppercase text-left">Customer</th>
+                <th class="px-6 py-3 text-xs uppercase text-left">Dates</th>
+                <th class="px-6 py-3 text-xs uppercase text-left">Rooms</th>
+                <th class="px-6 py-3 text-xs uppercase text-left">Amount</th>
+                <th class="px-6 py-3 text-xs uppercase text-left">Payment</th>
+                <th class="px-6 py-3 text-xs uppercase text-left">Status</th>
                 <th class="px-6 py-3 text-xs uppercase text-center">Actions</th>
             </tr>
         </thead>
