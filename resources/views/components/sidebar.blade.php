@@ -10,6 +10,7 @@ $menu = [
     ['label' => 'Tax Report', 'route' => 'reports.tax', 'icon' => 'fas fa-receipt'],
 
     ['label' => 'Profile', 'route' => 'profile.edit', 'icon' => 'fas fa-user'],
+    ['label' => 'Invoice Editor', 'route' => 'invoice.edit', 'icon' => 'fas fa-edit'],
 ];
 @endphp
 <aside class="w-64 bg-white shadow-lg min-h-screen">

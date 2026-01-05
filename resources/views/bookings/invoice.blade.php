@@ -65,7 +65,7 @@
         }
 
         .detail-row {
-            display: flex;
+            /* display: flex; */
             margin-bottom: 6px;
         }
 
@@ -255,7 +255,7 @@
                 @if($booking->number_of_nights > 0)
                     {{ $booking->number_of_nights }}
                 @else
-                   
+
                 @endif
             </td>
             <td class="right">
@@ -284,10 +284,10 @@
                 been effected by me/us in the regular course of my/our business.
             </div>
 
-            <div class="left-bottom">
+           <div class="left-bottom">
                 <strong>Payment Mode:</strong> {{ ucfirst(str_replace('_',' ',$booking->payment_mode)) }}<br><br>
-                <strong>Amount in Words:</strong><br>
-
+                <strong>Amount in Words:</strong> 
+                <span id="amountInWords"></span>
             </div>
         </div>
         <div class="right-column">
@@ -370,7 +370,74 @@
 
 </div>
     <script>
+        function convertNumberToWords(amount) {
+            const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+            const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+            const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+
+            if (amount === 0) return 'Zero Rupees Only';
+
+            let num = Math.floor(amount);
+            let words = '';
+
+            // Crores
+            if (num >= 10000000) {
+                words += convertLessThanThousand(Math.floor(num / 10000000)) + ' Crore ';
+                num %= 10000000;
+            }
+
+            // Lakhs
+            if (num >= 100000) {
+                words += convertLessThanThousand(Math.floor(num / 100000)) + ' Lakh ';
+                num %= 100000;
+            }
+
+            // Thousands
+            if (num >= 1000) {
+                words += convertLessThanThousand(Math.floor(num / 1000)) + ' Thousand ';
+                num %= 1000;
+            }
+
+            // Hundreds
+            if (num > 0) {
+                words += convertLessThanThousand(num);
+            }
+
+            function convertLessThanThousand(n) {
+                let str = '';
+
+                if (n >= 100) {
+                    str += ones[Math.floor(n / 100)] + ' Hundred ';
+                    n %= 100;
+                }
+
+                if (n >= 20) {
+                    str += tens[Math.floor(n / 10)] + ' ';
+                    n %= 10;
+                } else if (n >= 10) {
+                    str += teens[n - 10] + ' ';
+                    return str.trim();
+                }
+
+                if (n > 0) {
+                    str += ones[n] + ' ';
+                }
+
+                return str.trim();
+            }
+
+            return words.trim() + ' Rupees Only';
+        }
+
+        // Set the amount in words
+        const totalAmount = {{ $booking->total_amount }};
+        document.getElementById('amountInWords').textContent = convertNumberToWords(totalAmount);
+
         window.onload = function() { window.print(); }
     </script>
+    <script>
+        window.onload = function() { window.print(); }
+    </script>
+
 </body>
 </html>

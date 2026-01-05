@@ -17,6 +17,7 @@
     <table class="w-full border-collapse">
         <thead class="bg-gray-50">
             <tr>
+                <th class="px-6 py-3 text-xs uppercase text-left">Sr NO</th>
                 <th class="px-6 py-3 text-xs uppercase text-left">Name</th>
                 <th class="px-6 py-3 text-xs uppercase text-left">Base Price</th>
                 <th class="px-6 py-3 text-xs uppercase text-left">Total Rooms</th>
@@ -29,6 +30,9 @@
             @forelse($roomTypes as $type)
                 <tr class="hover:bg-gray-50 transition">
 
+                    <td class="px-6 py-4 font-medium">
+                       {{ $loop->iteration }}
+                    </td>
                     <td class="px-6 py-4 font-medium">
                         {{ $type->name }}
                     </td>

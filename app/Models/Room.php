@@ -72,38 +72,25 @@ class Room extends Model
     // }
 
 
-public function calculateTotalPrice(int $nights)
+public function calculateTotalPrice(int $nights): array
 {
-    // ✅ Minimum 1 night charge
-    $chargeableNights = max(1, $nights);
+    $roomCharges = $this->base_price * $nights;
 
-    $roomCharges   = 0;
-    $gstAmount     = 0;
-    $serviceTax    = 0;
-    $otherCharges  = 0;
-
-    for ($i = 1; $i <= $chargeableNights; $i++) {
-
-        $dailyRoomPrice   = $this->base_price;
-        $dailyOtherCharge = $this->other_charges ?? 0;
-
-        $dailyGst = ($dailyRoomPrice * $this->gst_percentage) / 100;
-        $dailyServiceTax = ($dailyRoomPrice * $this->service_tax_percentage) / 100;
-
-        $roomCharges  += $dailyRoomPrice;
-        $gstAmount    += $dailyGst;
-        $serviceTax   += $dailyServiceTax;
-        $otherCharges += $dailyOtherCharge;
+    // GST slab example (India)
+    if ($roomCharges <= 7500) {
+        $gstPercentage = 12;
+    } else {
+        $gstPercentage = 18;
     }
 
-    $total = $roomCharges + $gstAmount + $serviceTax + $otherCharges;
+    $gstAmount = ($roomCharges * $gstPercentage) / 100;
 
     return [
-        'room_charges'  => round($roomCharges, 2),
-        'gst_amount'    => round($gstAmount, 2),
-        'service_tax'   => round($serviceTax, 2),
-        'other_charges' => round($otherCharges, 2),
-        'total'         => round($total, 2),
+        'room_charges'   => round($roomCharges, 2),
+        'gst_percentage' => $gstPercentage,   // 🔥 THIS WAS MISSING
+        'gst_amount'     => round($gstAmount, 2),
+        'service_tax'    => 0,
+        'other_charges'  => 0,
     ];
 }
 
