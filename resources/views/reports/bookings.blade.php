@@ -73,12 +73,16 @@
     <table class="w-full text-sm">
         <thead class="bg-gray-50">
             <tr>
+                <th class="px-4 py-3 text-left">Sr No</th>
                 <th class="px-4 py-3 text-left">Booking #</th>
                 <th class="px-4 py-3 text-left">Customer</th>
                 <th class="px-4 py-3 text-left">Company/GST</th>
                 <th class="px-4 py-3 text-left">Check-in</th>
                 <th class="px-4 py-3 text-left">Nights</th>
                 <th class="px-4 py-3 text-left">Room Charges</th>
+                <th class="px-4 py-3 text-left">Discount</th>
+                <th class="px-4 py-3 text-left">Service Charge</th>
+                <th class="px-4 py-3 text-left">Other Charge</th>
                 <th class="px-4 py-3 text-left">GST</th>
                 <th class="px-4 py-3 text-left">Total</th>
                 <th class="px-4 py-3 text-left">Status</th>
@@ -87,6 +91,7 @@
         <tbody class="divide-y">
             @foreach($bookings as $booking)
                 <tr>
+                    <td class="px-4 py-3">{{ $loop->iteration }}</td>
                     <td class="px-4 py-3">{{ $booking->booking_number }}</td>
                     <td class="px-4 py-3">
                         {{ $booking->customer_name }}<br>
@@ -99,6 +104,9 @@
                     <td class="px-4 py-3">{{ $booking->check_in->format('d M Y') }}</td>
                     <td class="px-4 py-3">{{ $booking->number_of_nights }}</td>
                     <td class="px-4 py-3">₹{{ number_format($booking->room_charges, 2) }}</td>
+                    <td class="px-4 py-3">₹{{ number_format($booking->discount_amount, 2) }}</td>
+                    <td class="px-4 py-3">₹{{ number_format($booking->service_tax, 2) }}</td>
+                    <td class="px-4 py-3">₹{{ number_format($booking->other_charges, 2) }}</td>
                     <td class="px-4 py-3">₹{{ number_format($booking->gst_amount, 2) }}</td>
                     <td class="px-4 py-3 font-semibold">₹{{ number_format($booking->total_amount, 2) }}</td>
                     <td class="px-4 py-3">
@@ -113,5 +121,6 @@
             @endforeach
         </tbody>
     </table>
+    
 </div>
 @endsection

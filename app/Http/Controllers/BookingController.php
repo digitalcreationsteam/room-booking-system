@@ -36,7 +36,7 @@ class BookingController extends Controller
             $query->whereDate('check_out', '<=', $request->to_date);
         }
 
-        $bookings = $query->latest()->paginate(20);
+        $bookings = $query->latest()->paginate(10);
 
         return view('bookings.index', compact('bookings'));
     }
@@ -93,7 +93,7 @@ class BookingController extends Controller
 
             // Get GST percentage from room (if available)
             if (isset($calculation['gst_percentage'])) {
-                $totalGstPercentage = $calculation['gst_percentage']; // Use last room's GST %
+                $totalGstPercentage += $calculation['gst_percentage']; // Use last room's GST %
             }
 
             $totalGst += $calculation['gst_amount'];

@@ -53,6 +53,7 @@
     <table class="w-full">
         <thead class="bg-gray-50">
             <tr>
+                <th class="px-6 py-3 text-left">Sr No</th>
                 <th class="px-6 py-3 text-left">Date</th>
                 <th class="px-6 py-3 text-left">Bookings</th>
                 <th class="px-6 py-3 text-left">Revenue</th>
@@ -63,6 +64,7 @@
         <tbody class="divide-y">
             @foreach($dailyRevenue as $day)
                 <tr>
+                    <td class="px-6 py-4 font-semibold"> {{ $loop->iteration }}</td>
                     <td class="px-6 py-4 font-semibold">{{ $day['date'] }}</td>
                     <td class="px-6 py-4">{{ $day['bookings'] }}</td>
                     <td class="px-6 py-4 text-green-600 font-semibold">₹{{ number_format($day['revenue'], 2) }}</td>
