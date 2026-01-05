@@ -23,7 +23,6 @@ Route::post('/login', [CustomLoginController::class, 'login']);
 Route::post('/logout', [CustomLoginController::class, 'logout'])
     ->name('logout');
 
-
 Route::middleware(['auth', 'verified'])->group(function () {
 
     // License management routes (WITHOUT check.license middleware)

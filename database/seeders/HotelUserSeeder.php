@@ -13,13 +13,13 @@ class HotelUserSeeder extends Seeder
     {
         User::create([
             'name' => 'Shree Samarth',
-            'email' => 'samarthhotel@com.com',
+            'email' => 'samarthhotel@gmail.com',
             'password' => Hash::make('samarthhotel123'),
             'email_verified_at' => now()
         ]);
 
         echo "samarth hotel user created successfully!\n";
-        echo "Email: samarthhotel@com.com\n";
+        echo "Email: samarthhotel@gmail.com\n";
         echo "Password: samarthhotel123\n";
     }
 }
