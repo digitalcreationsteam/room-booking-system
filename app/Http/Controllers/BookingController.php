@@ -4,6 +4,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Booking;
+use App\Models\Customer;
 use App\Models\ExtraCharge;
 use App\Models\Room;
 use App\Models\RoomType;
@@ -47,96 +48,100 @@ class BookingController extends Controller
     }
 
     // Old code for store method
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'registration_no'    => 'required|string|max:50',
-            'customer_name'      => 'required|string|max:255',
-            'customer_mobile'    => 'required|string|max:20',
-            'customer_email'     => 'nullable|email',
-            'customer_address'   => 'required|string',
-            'company_name'       => 'nullable|string|max:255',
-            'gst_number'         => 'nullable|string|max:15',
+    // public function store(Request $request)
+    // {
+    //     $validated = $request->validate([
+    //         'registration_no'    => 'required|string|max:50',
+    //         'customer_name'      => 'required|string|max:255',
+    //         'customer_mobile'    => 'required|string|max:20',
+    //         'customer_email'     => 'nullable|email',
+    //         'customer_address'   => 'required|string',
+    //         'company_name'       => 'nullable|string|max:255',
+    //         'gst_number'         => 'nullable|string|max:15',
 
-            'check_in'           => 'required|date',
-            'check_out'          => 'required|date|after:check_in',
+    //         'check_in'           => 'required|date',
+    //         'check_out'          => 'required|date|after:check_in',
 
-            'number_of_adults'   => 'required|integer|min:1',
-            'number_of_children' => 'nullable|integer|min:0',
+    //         'number_of_adults'   => 'required|integer|min:1',
+    //         'number_of_children' => 'nullable|integer|min:0',
 
-            'room_ids'           => 'required|array|min:1',
-            'room_ids.*'         => 'exists:rooms,id',
+    //         'room_ids'           => 'required|array|min:1',
+    //         'room_ids.*'         => 'exists:rooms,id',
 
-            'advance_payment'    => 'nullable|numeric|min:0',
-            'payment_mode'       => 'nullable|in:cash,card,upi,bank_transfer',
-        ]);
+    //         'advance_payment'    => 'nullable|numeric|min:0',
+    //         'payment_mode'       => 'nullable|in:cash,card,upi,bank_transfer',
+    //     ]);
 
-        $checkIn  = Carbon::parse($validated['check_in']);
-        $checkOut = Carbon::parse($validated['check_out']);
-        $nights   = max(1, $checkIn->diffInDays($checkOut));
+    //     $checkIn  = Carbon::parse($validated['check_in']);
+    //     $checkOut = Carbon::parse($validated['check_out']);
+    //     $nights   = max(1, $checkIn->diffInDays($checkOut));
 
-        $totalRoomCharges = 0;
-        $totalGstAmount   = 0;
-        $gstPercentage    = null;
+    //     $totalRoomCharges = 0;
+    //     $totalGstAmount   = 0;
+    //     $gstPercentage    = null;
 
-        $selectedRooms = Room::whereIn('id', $validated['room_ids'])->get();
+    //     $selectedRooms = Room::whereIn('id', $validated['room_ids'])->get();
 
-        foreach ($selectedRooms as $room) {
-            $calc = $room->calculateTotalPrice($nights);
+    //     foreach ($selectedRooms as $room) {
+    //         $calc = $room->calculateTotalPrice($nights);
 
-            $totalRoomCharges += $calc['room_charges'];
-            $totalGstAmount += $calc['gst_amount'];
+    //         $totalRoomCharges += $calc['room_charges'];
+    //         $totalGstAmount += $calc['gst_amount'];
 
-            if ($gstPercentage === null) {
-                $gstPercentage = $calc['gst_percentage']; // 🔥 ALWAYS SET
-            }
-        }
+    //         if ($gstPercentage === null) {
+    //             $gstPercentage = $calc['gst_percentage']; // 🔥 ALWAYS SET
+    //         }
+    //     }
 
-        $totalAmount = $totalRoomCharges + $totalGstAmount;
-        $advance     = $validated['advance_payment'] ?? 0;
-        $remaining   = max(0, $totalAmount - $advance);
+    //     $totalAmount = $totalRoomCharges + $totalGstAmount;
+    //     $advance     = $validated['advance_payment'] ?? 0;
+    //     $remaining   = max(0, $totalAmount - $advance);
 
-        $booking = Booking::create([
-            'registration_no'    => $validated['registration_no'],
-            'customer_name'      => $validated['customer_name'],
-            'customer_mobile'    => $validated['customer_mobile'],
-            'customer_email'     => $validated['customer_email'],
-            'customer_address'   => $validated['customer_address'],
-            'company_name'       => $validated['company_name'],
-            'gst_number'         => $validated['gst_number'],
+    //     $booking = Booking::create([
+    //         'registration_no'    => $validated['registration_no'],
+    //         'customer_name'      => $validated['customer_name'],
+    //         'customer_mobile'    => $validated['customer_mobile'],
+    //         'customer_email'     => $validated['customer_email'],
+    //         'customer_address'   => $validated['customer_address'],
+    //         'company_name'       => $validated['company_name'],
+    //         'gst_number'         => $validated['gst_number'],
 
-            'check_in'           => $checkIn,
-            'check_out'          => $checkOut,
-            'number_of_adults'   => $validated['number_of_adults'],
-            'number_of_children' => $validated['number_of_children'] ?? 0,
-            'number_of_nights'   => $nights,
+    //         'check_in'           => $checkIn,
+    //         'check_out'          => $checkOut,
+    //         'number_of_adults'   => $validated['number_of_adults'],
+    //         'number_of_children' => $validated['number_of_children'] ?? 0,
+    //         'number_of_nights'   => $nights,
 
-            'room_charges'       => $totalRoomCharges,
-            'gst_percentage'     => $gstPercentage, // ✅ SAVES
-            'gst_amount'         => $totalGstAmount,
+    //         'room_charges'       => $totalRoomCharges,
+    //         'gst_percentage'     => $gstPercentage, // ✅ SAVES
+    //         'gst_amount'         => $totalGstAmount,
 
-            'total_amount'       => $totalAmount,
-            'advance_payment'    => $advance,
-            'remaining_amount'   => $remaining,
-            'payment_status'     => $remaining > 0 ? 'partial' : 'paid',
-            'payment_mode'       => $validated['payment_mode'],
-            'booking_status'     => 'confirmed',
-            'created_by'         => auth()->id(),
-        ]);
+    //         'total_amount'       => $totalAmount,
+    //         'advance_payment'    => $advance,
+    //         'remaining_amount'   => $remaining,
+    //         'payment_status'     => $remaining > 0 ? 'partial' : 'paid',
+    //         'payment_mode'       => $validated['payment_mode'],
+    //         'booking_status'     => 'confirmed',
+    //         'created_by'         => auth()->id(),
+    //     ]);
 
-        foreach ($selectedRooms as $room) {
-            $booking->bookingRooms()->create([
-                'room_id'    => $room->id,
-                'room_price' => $room->base_price,
-            ]);
+    //     foreach ($selectedRooms as $room) {
+    //         $booking->bookingRooms()->create([
+    //             'room_id'    => $room->id,
+    //             'room_price' => $room->base_price,
+    //         ]);
 
-            $room->update(['status' => 'booked']);
-        }
+    //         $room->update(['status' => 'booked']);
+    //     }
 
-        return redirect()
-            ->route('bookings.show', $booking)
-            ->with('success', 'Booking created successfully!');
-    }
+    //     return redirect()
+    //         ->route('bookings.show', $booking)
+    //         ->with('success', 'Booking created successfully!');
+    // }
+
+
+
+
 
     public function show(Booking $booking)
     {
@@ -165,6 +170,140 @@ class BookingController extends Controller
 
         return view('bookings.edit', compact('booking', 'roomTypes', 'rooms'));
     }
+
+
+    // Old code for store method
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'registration_no'   => 'required|string|max:50',
+            'customer_name' => 'required|string|max:255',
+            'customer_mobile' => 'required|string|max:20',
+            'customer_email' => 'nullable|email',
+            'customer_address' => 'nullable|string',
+            'id_proof_type' => 'nullable',
+            'id_proof_number' => 'nullable',
+            'company_name' => 'nullable|string|max:255',
+            'gst_number' => 'nullable|string|max:15',
+            'check_in' => 'required|date',
+            'check_out' => 'required|date|after:check_in',
+            'number_of_adults' => 'required|integer|min:1',
+            'number_of_children' => 'nullable|integer|min:0',
+            'number_of_nights' => 'nullable|integer|min:1',
+            'room_ids' => 'required|array|min:1',
+            'room_ids.*' => 'exists:rooms,id',
+            'advance_payment' => 'nullable|numeric|min:0',
+            'payment_mode' => 'nullable|in:cash,card,upi,bank_transfer'
+        ]);
+
+        $checkIn = Carbon::parse($validated['check_in']);
+        $checkOut = Carbon::parse($validated['check_out']);
+        // $nights = $checkIn->diffInDays($checkOut);
+        $nights = max(1, $checkIn->diffInDays($checkOut));
+
+        // Calculate total charges
+        $totalRoomCharges = 0;
+        $totalGstPercentage = 0;
+        $totalGst = 0;
+        $totalServiceTax = 0;
+        $totalOtherCharges = 0;
+
+        $selectedRooms = Room::whereIn('id', $validated['room_ids'])->get();
+
+        foreach ($selectedRooms as $room) {
+            $calculation = $room->calculateTotalPrice($nights);
+            $totalRoomCharges += $calculation['room_charges'];
+
+            // Get GST percentage from room (if available)
+            if (isset($calculation['gst_percentage'])) {
+                $totalGstPercentage = $calculation['gst_percentage']; // Use last room's GST %
+            }
+
+            $totalGst += $calculation['gst_amount'];
+            $totalServiceTax += $calculation['service_tax'];
+            $totalOtherCharges += $calculation['other_charges'];
+        }
+        //    return $totalRoomCharges;
+
+        $totalAmount = $totalRoomCharges + $totalGst + $totalServiceTax + $totalOtherCharges;
+        $advancePayment = $validated['advance_payment'] ?? 0;
+        $paymentMode = $validated['payment_mode'] ?? null;
+
+        $advancePayment = $advancePayment;
+        // $remainingAmount = 0;
+        // $paymentStatus = 'paid';
+
+        $advancePayment = $advancePayment ?? 0;
+
+        if ($advancePayment == 0) {
+            $remainingAmount = 0;
+            $paymentStatus = 'paid'; // or 'pending'
+        } else {
+            $remainingAmount = max(0, $totalAmount - $advancePayment);
+            $paymentStatus = $remainingAmount > 0 ? 'partial' : 'paid';
+        }
+
+        $customer = Customer::where('customer_mobile', $validated['customer_mobile'])->first();
+
+        if (!$customer) {
+            $customer = Customer::create([
+                'customer_name'    => $validated['customer_name'],
+                'customer_mobile'  => $validated['customer_mobile'],
+                'customer_email'   => $validated['customer_email'],
+                'customer_address' => $validated['customer_address'],
+                'id_proof_type'    => $validated['id_proof_type'],
+                'id_proof_number'  => $validated['id_proof_number'],
+                'company_name'     => $validated['company_name'],
+                'gst_number'       => $validated['gst_number'],
+            ]);
+        }
+
+        // Create booking
+        $booking = Booking::create([
+            'registration_no'  => $validated['registration_no'] ?? null,
+            'customer_id' => $customer->id,
+            'customer_name' => $validated['customer_name'],
+            'customer_mobile' => $validated['customer_mobile'],
+            'customer_email' => $validated['customer_email'],
+            'customer_address' => $validated['customer_address'],
+            'id_proof_type' => $validated['id_proof_type'],
+            'id_proof_number' => $validated['id_proof_number'],
+            'company_name' => $validated['company_name'],
+            'gst_number' => $validated['gst_number'],
+            'check_in' => $checkIn,
+            'check_out' => $checkOut,
+            'number_of_adults' => $validated['number_of_adults'],
+            'number_of_children' => $validated['number_of_children'] ?? 0,
+            'number_of_nights' => $nights,
+            'room_charges' => $totalRoomCharges,
+            'gst_percentage' => $totalGstPercentage,
+            'gst_amount' => $totalGst,
+            'service_tax' => $totalServiceTax,
+            'other_charges' => $totalOtherCharges,
+            'total_amount' => $totalAmount, //net amount
+            'advance_payment' => $advancePayment,
+            'remaining_amount' => $remainingAmount,
+            'payment_status' => $paymentStatus,
+            'payment_mode' => $paymentMode,
+            'created_by' => auth()->id()
+        ]);
+
+        // Attach rooms to booking
+        foreach ($selectedRooms as $room) {
+            $booking->bookingRooms()->create([
+                'room_id' => $room->id,
+                'room_price' => $room->base_price
+            ]);
+
+            // Update room status
+            $room->update(['status' => 'booked']);
+        }
+
+        return redirect()->route('bookings.show', $booking)
+            ->with('success', 'Booking created successfully!');
+    }
+
+
 
     public function update(Request $request, Booking $booking)
     {
@@ -200,7 +339,14 @@ class BookingController extends Controller
         $gstAmount      = ($netRoomCharges * $gstPercentage) / 100;
 
         $totalAmount = $netRoomCharges + $gstAmount + $serviceTax + $otherCharges;
-        $remaining   = max(0, $totalAmount - $advance);
+        // $remaining   = max(0, $totalAmount - $advance);
+
+        if ($advance == 0) {
+            $remaining = 0;
+        } else {
+            $remaining = max(0, $totalAmount - $advance);
+        }
+
 
         $booking->update([
             'room_charges'     => $roomCharges,
@@ -239,7 +385,7 @@ class BookingController extends Controller
         // Update booking totals
         $totalExtraCharges = $booking->extraCharges()->sum('amount');
         $newTotal          = $booking->room_charges + $booking->gst_amount +
-        $booking->service_tax + $booking->other_charges + $totalExtraCharges;
+            $booking->service_tax + $booking->other_charges + $totalExtraCharges;
 
         $booking->update([
             'extra_charges'    => $totalExtraCharges,
@@ -259,7 +405,7 @@ class BookingController extends Controller
         // Recalculate totals
         $totalExtraCharges = $booking->extraCharges()->sum('amount');
         $newTotal          = $booking->room_charges + $booking->gst_amount +
-        $booking->service_tax + $booking->other_charges + $totalExtraCharges;
+            $booking->service_tax + $booking->other_charges + $totalExtraCharges;
 
         $booking->update([
             'extra_charges'    => $totalExtraCharges,

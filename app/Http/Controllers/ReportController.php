@@ -102,6 +102,7 @@ class ReportController extends Controller
 
         $bookings = Booking::whereBetween('created_at', [$fromDate, $toDate])
             ->where('booking_status', '!=', 'cancelled')
+            ->where('booking_status', '=', 'checked_out') // Exclude checked_out bookings
             ->get();
 
         $taxSummary = [

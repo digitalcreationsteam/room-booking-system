@@ -29,7 +29,7 @@
             <label>Registration No *</label>
             <input type="text" name="registration_no"
                 value="{{ old('registration_no', $booking->registration_no) }}"
-                class="w-full border rounded px-3 py-2"> 
+                class="w-full border rounded px-3 py-2">
                   @error('registration_no')
                     <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                 @enderror
@@ -65,7 +65,7 @@
 
     <div class="mb-4">
         <label>Address </label>
-        <textarea name="customer_address" 
+        <textarea name="customer_address"
             class="w-full border rounded px-3 py-2">{{ old('customer_address', $booking->customer_address) }}</textarea>
     </div>
 
@@ -182,12 +182,19 @@
 
 <h3 class="text-lg font-semibold mb-4">Payment Summary</h3>
 
-<div class="mb-3">
+{{-- <div class="mb-3">
     <label>Room Charges *</label>
     <input type="number" step="0.01" id="room_charges" name="room_charges"
         value="{{ $booking->room_charges }}"
         class="w-full border rounded px-3 py-2 bg-gray-100"
         readonly>
+</div> --}}
+
+<div class="mb-3">
+    <label>Room Charges *</label>
+    <input type="number" step="0.01" id="room_charges" name="room_charges"
+        value="{{ $booking->room_charges }}"
+        class="w-full border rounded px-3 py-2">
 </div>
 
 
@@ -237,7 +244,7 @@
         class="w-full border rounded px-3 py-2">
 </div>
 
-<div class="mb-3">
+{{-- <div class="mb-3">
     <label>Advance Paid</label>
     <input type="number" step="0.01" id="advance_payment" name="advance_payment"
         value="{{ $booking->advance_payment }}"
@@ -256,6 +263,36 @@
     <label>Payment Status</label>
     <select id="payment_status" name="payment_status"
         class="w-full border rounded px-3 py-2">
+        <option value="pending" @selected($booking->payment_status=='pending')>Pending</option>
+        <option value="partial" @selected($booking->payment_status=='partial')>Partial</option>
+        <option value="paid" @selected($booking->payment_status=='paid')>Paid</option>
+    </select>
+</div> --}}
+
+<div class="mb-3">
+    <label>Advance Paid</label>
+    <input type="number" step="0.01"
+           id="advance_payment"
+           name="advance_payment"
+           value="{{ $booking->advance_payment }}"
+           class="w-full border rounded px-3 py-2">
+</div>
+
+<div class="mb-3">
+    <label class="text-red-600">Remaining Amount</label>
+    <input type="text"
+           id="remaining_amount"
+           value="{{ number_format($booking->remaining_amount,2) }}"
+           class="w-full border rounded px-3 py-2 bg-gray-100 text-red-600 font-bold"
+           readonly>
+</div>
+
+<div class="mb-3">
+    <label>Payment Status</label>
+    <select
+    id="payment_status"
+            name="payment_status"
+            class="w-full border rounded px-3 py-2">
         <option value="pending" @selected($booking->payment_status=='pending')>Pending</option>
         <option value="partial" @selected($booking->payment_status=='partial')>Partial</option>
         <option value="paid" @selected($booking->payment_status=='paid')>Paid</option>
@@ -309,14 +346,16 @@ function calculatePayment() {
 
     discount_amount.value = discount.toFixed(2);
     gst_amount.value = gst.toFixed(2);
-    remaining_amount.value = Math.max(0, remaining).toFixed(2);
+    // remaining_amount.value = Math.max(0, remaining).toFixed(2);
 
-    payment_status.value =
-        remaining <= 0 ? 'paid' :
-        advance > 0 ? 'partial' : 'pending';
+    // payment_status.value =
+    //     remaining <= 0 ? 'paid' :
+    //     advance > 0 ? 'partial' : 'pending';
 }
 </script>
-<script>
+
+
+{{-- <script>
 document.addEventListener('DOMContentLoaded', function () {
 
     const roomCheckboxes = document.querySelectorAll('.room-checkbox');
@@ -346,6 +385,258 @@ document.addEventListener('DOMContentLoaded', function () {
     // calculate on page load (edit booking)
     updateRoomCharges();
 });
+</script> --}}
+
+{{-- <script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const roomCheckboxes = document.querySelectorAll('.room-checkbox');
+
+    const room_charges     = document.getElementById('room_charges');
+    const discount_type    = document.getElementById('discount_type');
+    const discount_value   = document.getElementById('discount_value');
+    const gst_percentage   = document.getElementById('gst_percentage');
+    const service_tax      = document.getElementById('service_tax');
+    const other_charges    = document.getElementById('other_charges');
+    const advance_payment  = document.getElementById('advance_payment');
+    const discount_amount  = document.getElementById('discount_amount');
+    const gst_amount       = document.getElementById('gst_amount');
+    const remaining_amount = document.getElementById('remaining_amount');
+    const payment_status   = document.getElementById('payment_status');
+
+    let manualRoomCharge = false;
+
+    // 🔹 If admin edits room charges manually
+    room_charges.addEventListener('input', () => {
+        manualRoomCharge = true;
+        calculatePayment();
+    });
+
+    // 🔹 Auto calculate room charges from selected rooms
+    function updateRoomChargesFromRooms() {
+        if (manualRoomCharge) return;
+
+        let total = 0;
+        roomCheckboxes.forEach(cb => {
+            if (cb.checked) {
+                total += parseFloat(cb.dataset.price || 0);
+            }
+        });
+
+        room_charges.value = total.toFixed(2);
+        calculatePayment();
+    }
+
+    roomCheckboxes.forEach(cb => {
+        cb.addEventListener('change', () => {
+            manualRoomCharge = false; // rooms change → auto mode
+            updateRoomChargesFromRooms();
+        });
+    });
+
+    // 🔹 Main payment calculation
+    function calculatePayment() {
+
+        let room    = +room_charges.value || 0;
+        let gstP    = +gst_percentage.value || 0;
+        let service = +service_tax.value || 0;
+        let other   = +other_charges.value || 0;
+        let advance = +advance_payment.value || 0;
+
+        let dType = discount_type.value;
+        let dVal  = +discount_value.value || 0;
+
+        let discount = 0;
+        if (dType === 'percentage') discount = room * dVal / 100;
+        if (dType === 'fixed') discount = Math.min(dVal, room);
+
+        let taxable  = room - discount;
+        let gst      = taxable * gstP / 100;
+        let total    = taxable + gst + service + other;
+        let remaining = total - advance;
+
+        discount_amount.value  = discount.toFixed(2);
+        gst_amount.value       = gst.toFixed(2);
+        remaining_amount.value = Math.max(0, remaining).toFixed(2);
+
+        payment_status.value =
+            remaining <= 0 ? 'paid' :
+            advance > 0 ? 'partial' : 'pending';
+    }
+
+    // 🔹 Attach calculation events
+    [
+        discount_type, discount_value,
+        gst_percentage, service_tax,
+        other_charges, advance_payment
+    ].forEach(el => el.addEventListener('input', calculatePayment));
+
+    // 🔹 Initial load (edit booking)
+    updateRoomChargesFromRooms();
+});
+</script> --}}
+
+
+{{-- <script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const roomCheckboxes = document.querySelectorAll('.room-checkbox');
+
+    const room_charges   = document.getElementById('room_charges');
+    const discount_type  = document.getElementById('discount_type');
+    const discount_value = document.getElementById('discount_value');
+    const gst_percentage = document.getElementById('gst_percentage');
+    const service_tax    = document.getElementById('service_tax');
+    const other_charges  = document.getElementById('other_charges');
+    const discount_amount = document.getElementById('discount_amount');
+    const gst_amount      = document.getElementById('gst_amount');
+
+    let manualRoomCharge = false;
+
+    room_charges.addEventListener('input', () => {
+        manualRoomCharge = true;
+        calculate();
+    });
+
+    function updateRoomCharges() {
+        if (manualRoomCharge) return;
+
+        let total = 0;
+        roomCheckboxes.forEach(cb => {
+            if (cb.checked) {
+                total += parseFloat(cb.dataset.price || 0);
+            }
+        });
+
+        room_charges.value = total.toFixed(2);
+        calculate();
+    }
+
+    roomCheckboxes.forEach(cb => {
+        cb.addEventListener('change', () => {
+            manualRoomCharge = false;
+            updateRoomCharges();
+        });
+    });
+
+    function calculate() {
+        let room = +room_charges.value || 0;
+        let gstP = +gst_percentage.value || 0;
+        let service = +service_tax.value || 0;
+        let other = +other_charges.value || 0;
+
+        let dType = discount_type.value;
+        let dVal  = +discount_value.value || 0;
+
+        let discount = 0;
+        if (dType === 'percentage') discount = room * dVal / 100;
+        if (dType === 'fixed') discount = Math.min(dVal, room);
+
+        let taxable = room - discount;
+        let gst = taxable * gstP / 100;
+
+        discount_amount.value = discount.toFixed(2);
+        gst_amount.value = gst.toFixed(2);
+    }
+
+    [
+        discount_type,
+        discount_value,
+        gst_percentage,
+        service_tax,
+        other_charges
+    ].forEach(el => el.addEventListener('input', calculate));
+
+    updateRoomCharges();
+});
+</script> --}}
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const roomCheckboxes = document.querySelectorAll('.room-checkbox');
+
+    const checkIn        = document.querySelector('input[name="check_in"]');
+    const checkOut       = document.querySelector('input[name="check_out"]');
+
+    const roomCharges    = document.getElementById('room_charges');
+    const discountType   = document.getElementById('discount_type');
+    const discountValue  = document.getElementById('discount_value');
+    const gstPercentage  = document.getElementById('gst_percentage');
+
+    const discountAmount = document.getElementById('discount_amount');
+    const gstAmount      = document.getElementById('gst_amount');
+
+    /* 🔹 Calculate number of nights */
+    function getNights() {
+        if (!checkIn.value || !checkOut.value) return 0;
+
+        const inDate  = new Date(checkIn.value);
+        const outDate = new Date(checkOut.value);
+
+        const diff = outDate - inDate;
+        const nights = diff / (1000 * 60 * 60 * 24);
+
+        return nights > 0 ? nights : 1;
+
+        // return nights > 0 ? nights : 0;
+    }
+
+    /* 🔹 Calculate room charges based on dates & rooms */
+    function calculateRoomCharges() {
+        const nights = getNights();
+        let perNightTotal = 0;
+
+        roomCheckboxes.forEach(cb => {
+            if (cb.checked) {
+                perNightTotal += parseFloat(cb.dataset.price || 0);
+            }
+        });
+
+        const total = nights * perNightTotal;
+        roomCharges.value = total.toFixed(2);
+
+        calculateDiscountGST();
+    }
+
+    /* 🔹 Discount + GST (display only) */
+    function calculateDiscountGST() {
+
+        let room = +roomCharges.value || 0;
+        let gstP = +gstPercentage.value || 0;
+        let dVal = +discountValue.value || 0;
+
+        let discount = 0;
+        if (discountType.value === 'percentage') {
+            discount = room * dVal / 100;
+        }
+        if (discountType.value === 'fixed') {
+            discount = Math.min(dVal, room);
+        }
+
+        let taxable = room - discount;
+        let gst = taxable * gstP / 100;
+
+        discountAmount.value = discount.toFixed(2);
+        gstAmount.value = gst.toFixed(2);
+    }
+
+    /* 🔹 Events */
+    roomCheckboxes.forEach(cb =>
+        cb.addEventListener('change', calculateRoomCharges)
+    );
+
+    checkIn.addEventListener('change', calculateRoomCharges);
+    checkOut.addEventListener('change', calculateRoomCharges);
+
+    [discountType, discountValue, gstPercentage]
+        .forEach(el => el.addEventListener('input', calculateDiscountGST));
+
+    /* 🔹 Initial load (Edit booking) */
+    calculateRoomCharges();
+});
 </script>
+
 
 @endsection

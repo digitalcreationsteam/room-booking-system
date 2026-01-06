@@ -76,12 +76,14 @@ public function calculateTotalPrice(int $nights): array
 {
     $roomCharges = $this->base_price * $nights;
 
+    $gstPercentage = $this->gst_percentage;
+
     // GST slab example (India)
-    if ($roomCharges <= 7500) {
-        $gstPercentage = 12;
-    } else {
-        $gstPercentage = 18;
-    }
+    // if ($roomCharges <= 7500) {
+    //     $gstPercentage = 12;
+    // } else {
+    //     $gstPercentage = 18;
+    // }
 
     $gstAmount = ($roomCharges * $gstPercentage) / 100;
 
