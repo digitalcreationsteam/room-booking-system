@@ -60,8 +60,8 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
 
 
-Clint Side license Page   :- http://127.0.0.1:8000/profile/license (Get 7a757a5ee6ea)
-Admin Side license Page   :- http://127.0.0.1:8000/admin/license/generate
+Clint Side license Page   :- http://127.0.0.1:8000/profile/license (Get Mechine ID)
+Admin Side license Page   :- http://127.0.0.1:8000/admin/license/generate (Generated License Key)
 
 
 
