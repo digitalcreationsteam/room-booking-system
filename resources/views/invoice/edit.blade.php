@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Dynamic Invoice Generator</title>
     <style>
         * {
@@ -95,11 +96,62 @@
             background: #4b5563;
         }
 
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+        }
+
         .section-title {
             font-size: 18px;
             font-weight: 600;
             color: #374151;
             margin-bottom: 15px;
+        }
+
+        /* Search Section */
+        .search-section {
+            background: #f0f9ff;
+            border: 2px solid #3b82f6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            align-items: end;
+        }
+
+        .search-bar .form-group {
+            flex: 1;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
         }
 
         .form-grid {
@@ -196,6 +248,32 @@
             font-size: 20px;
             font-weight: 700;
             color: #1f2937;
+        }
+
+        /* Loader */
+        .loader {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loader.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         /* Invoice Preview */
@@ -298,9 +376,8 @@
             text-align: center;
         }
 
-        /* BOTTOM FIXED TO PAGE BOTTOM */
         .invoice-footer {
-            margin-top: auto;
+            margin-top: 30px;
             border-top: 1px dashed #999;
             padding-top: 15px;
         }
@@ -399,6 +476,26 @@
                 <button class="btn btn-success" onclick="showPreview()">👁️ Preview Invoice</button>
             </div>
 
+            <!-- Alert Messages -->
+            <div id="alertMessage" class="alert"></div>
+
+            <!-- Search Section -->
+            <div class="search-section">
+                <div class="section-title">🔍 Search Booking</div>
+                <div class="search-bar">
+                    <div class="form-group">
+                        <label>Enter Booking Number</label>
+                        <input type="text" id="searchBookingNumber" placeholder="e.g., BK-2026-001">
+                    </div>
+                    <button class="btn btn-warning" onclick="searchBooking()">🔍 Search</button>
+                    <button class="btn btn-secondary" onclick="resetForm()">🔄 Reset</button>
+                </div>
+                <div class="loader" id="loader">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 10px; color: #6b7280;">Searching...</p>
+                </div>
+            </div>
+
             <!-- Customer Details -->
             <div class="section-title">Customer Details</div>
             <div class="form-grid">
@@ -420,7 +517,7 @@
                 </div>
                 <div class="form-group">
                     <label>Booking Number</label>
-                    <input type="text" id="bookingNumber" value="BK-2026-001" oninput="updatePreview()">
+                    <input type="text" id="bookingNumber" value="BK-2026-001" readonly>
                 </div>
             </div>
 
@@ -502,7 +599,7 @@
                 <button class="btn btn-secondary" onclick="hidePreview()">← Back to Editor</button>
                 <button class="btn btn-primary" onclick="window.print()">🖨️ Print / Save PDF</button>
             </div>
-            
+
             <div class="invoice-container">
                 <div class="invoice-content">
                     <!-- Invoice Header -->
@@ -546,7 +643,7 @@
                     </table>
                 </div>
 
-                <!-- Invoice Footer - FIXED TO BOTTOM -->
+                <!-- Invoice Footer -->
                 <div class="invoice-footer">
                     <div class="footer-grid">
                         <div>
@@ -612,6 +709,135 @@
             { id: 2, roomNumber: '102', roomType: 'Standard Non-AC', ratePerNight: 1500 }
         ];
 
+        // Search Booking Function
+        async function searchBooking() {
+            const bookingNumber = document.getElementById('searchBookingNumber').value.trim();
+
+            if (!bookingNumber) {
+                showAlert('Please enter a booking number', 'error');
+                return;
+            }
+
+            // Show loader
+            document.getElementById('loader').classList.add('show');
+            hideAlert();
+            // /invoice/booking/{bookingNumber}
+            try {
+                const response = await fetch(`invoice/booking/${bookingNumber}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    fillBookingData(data.booking);
+                    showAlert('Booking found and loaded successfully!', 'success');
+                } else {
+                    showAlert(data.message || 'Booking not found', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Error searching booking. Please try again.', 'error');
+            } finally {
+                document.getElementById('loader').classList.remove('show');
+            }
+        }
+
+        // Fill form with booking data
+        function fillBookingData(booking) {
+            // Customer Details
+            document.getElementById('customerName').value = booking.customer_name || '';
+            document.getElementById('customerMobile').value = booking.customer_mobile || '';
+            document.getElementById('customerAddress').value = booking.customer_address || '';
+            document.getElementById('gstNumber').value = booking.gst_number || '';
+            document.getElementById('bookingNumber').value = booking.booking_number || '';
+
+            // Booking Details
+            if (booking.check_in) {
+                document.getElementById('checkIn').value = formatDateTimeForInput(booking.check_in);
+            }
+            if (booking.check_out) {
+                document.getElementById('checkOut').value = formatDateTimeForInput(booking.check_out);
+            }
+
+            document.getElementById('paymentMode').value = booking.payment_mode || 'cash';
+
+            // Financial Details
+            document.getElementById('discountAmount').value = booking.discount_amount || 0;
+            document.getElementById('gstRate').value = booking.gst_percentage || 0;
+            document.getElementById('advancePayment').value = booking.advance_payment || 0;
+
+            // Rooms
+            if (booking.rooms && booking.rooms.length > 0) {
+                rooms = booking.rooms.map((room, index) => ({
+                    id: index + 1,
+                    roomNumber: room.room_number || room.room?.room_number || '',
+                    roomType: room.room_type || room.room?.room_type?.name || '',
+                    ratePerNight: parseFloat(room.room_price || room.room?.base_price || 0)
+                }));
+                renderRooms();
+            }
+
+            updatePreview();
+        }
+
+        // Format datetime for input field
+        function formatDateTimeForInput(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+
+        // Reset form to default values
+        function resetForm() {
+            document.getElementById('searchBookingNumber').value = '';
+
+            // Reset to default values
+            document.getElementById('customerName').value = 'John Doe';
+            document.getElementById('customerMobile').value = '9876543210';
+            document.getElementById('customerAddress').value = '123 Main Street, Mumbai';
+            document.getElementById('gstNumber').value = '27XXXXX1234X1Z5';
+            document.getElementById('bookingNumber').value = 'BK-2026-001';
+
+            document.getElementById('checkIn').value = '2026-01-01T14:00';
+            document.getElementById('checkOut').value = '2026-01-03T12:00';
+            document.getElementById('paymentMode').value = 'cash';
+
+            document.getElementById('discountAmount').value = '0';
+            document.getElementById('gstRate').value = '12';
+            document.getElementById('advancePayment').value = '2000';
+
+            // Reset rooms
+            rooms = [
+                { id: 1, roomNumber: '101', roomType: 'Deluxe AC', ratePerNight: 2000 },
+                { id: 2, roomNumber: '102', roomType: 'Standard Non-AC', ratePerNight: 1500 }
+            ];
+
+            renderRooms();
+            updatePreview();
+            hideAlert();
+        }
+
+        // Show/Hide Alert
+        function showAlert(message, type) {
+            const alert = document.getElementById('alertMessage');
+            alert.textContent = message;
+            alert.className = `alert alert-${type} show`;
+        }
+
+        function hideAlert() {
+            const alert = document.getElementById('alertMessage');
+            alert.classList.remove('show');
+        }
+
         function calculateNights() {
             const checkIn = new Date(document.getElementById('checkIn').value);
             const checkOut = new Date(document.getElementById('checkOut').value);
@@ -639,7 +865,7 @@
             const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
             const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
 
-            if (num === 0) return 'Zero Only';
+            if (num === 0) return 'Zero Rupees Only';
 
             function convertLessThanThousand(n) {
                 if (n === 0) return '';
@@ -655,139 +881,144 @@
                 if (n < 100000) return convertLessThanThousand(Math.floor(n / 1000)) + ' Thousand' + (n % 1000 ? ' ' + convertLessThanThousand(n % 1000) : '');
                 if (n < 10000000) return convertLessThanThousand(Math.floor(n / 100000)) + ' Lakh' + (n % 100000 ? ' ' + convert(n % 100000) : '');
                 return convertLessThanThousand(Math.floor(n / 10000000)) + ' Crore' + (n % 10000000 ? ' ' + convert(n % 10000000) : '');
-            }
+                }
 
-            return convert(Math.floor(num)) + ' Only';
-        }
+                return convert(Math.floor(num)) + ' Rupees Only';
+    }
 
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            const day = String(date.getDate()).padStart(2, '0');
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            const month = months[date.getMonth()];
-            const year = date.getFullYear();
-            let hours = date.getHours();
-            const minutes = String(date.getMinutes()).padStart(2, '0');
-            const ampm = hours >= 12 ? 'PM' : 'AM';
-            hours = hours % 12 || 12;
-            return `${day} ${month} ${year} ${String(hours).padStart(2, '0')}:${minutes} ${ampm}`;
-        }
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const month = months[date.getMonth()];
+        const year = date.getFullYear();
+        let hours = date.getHours();
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12 || 12;
+        return `${day} ${month} ${year} ${String(hours).padStart(2, '0')}:${minutes} ${ampm}`;
+    }
 
-        function renderRooms() {
-            const container = document.getElementById('roomsContainer');
-            container.innerHTML = rooms.map((room, index) => `
-                <div class="room-card">
-                    <div class="room-card-grid">
-                        <div class="form-group">
-                            <label>Room No</label>
-                            <input type="text" value="${room.roomNumber}" 
-                                onchange="updateRoom(${room.id}, 'roomNumber', this.value)">
-                        </div>
-                        <div class="form-group">
-                            <label>Room Type</label>
-                            <input type="text" value="${room.roomType}" 
-                                onchange="updateRoom(${room.id}, 'roomType', this.value)">
-                        </div>
-                        <div class="form-group">
-                            <label>Rate per Night (₹)</label>
-                            <input type="number" value="${room.ratePerNight}" min="0" step="0.01"
-                                onchange="updateRoom(${room.id}, 'ratePerNight', parseFloat(this.value))">
-                        </div>
-                        <button class="btn btn-danger" onclick="removeRoom(${room.id})" 
-                            ${rooms.length === 1 ? 'disabled' : ''}>🗑️</button>
+    function renderRooms() {
+        const container = document.getElementById('roomsContainer');
+        container.innerHTML = rooms.map((room, index) => `
+            <div class="room-card">
+                <div class="room-card-grid">
+                    <div class="form-group">
+                        <label>Room No</label>
+                        <input type="text" value="${room.roomNumber}"
+                            onchange="updateRoom(${room.id}, 'roomNumber', this.value)">
                     </div>
+                    <div class="form-group">
+                        <label>Room Type</label>
+                        <input type="text" value="${room.roomType}"
+                            onchange="updateRoom(${room.id}, 'roomType', this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label>Rate per Night (₹)</label>
+                        <input type="number" value="${room.ratePerNight}" min="0" step="0.01"
+                            onchange="updateRoom(${room.id}, 'ratePerNight', parseFloat(this.value))">
+                    </div>
+                    <button class="btn btn-danger" onclick="removeRoom(${room.id})"
+                        ${rooms.length === 1 ? 'disabled' : ''}>🗑️</button>
                 </div>
-            `).join('');
-        }
+            </div>
+        `).join('');
+    }
 
-        function addRoom() {
-            const newId = rooms.length > 0 ? Math.max(...rooms.map(r => r.id)) + 1 : 1;
-            rooms.push({ id: newId, roomNumber: '', roomType: '', ratePerNight: 0 });
+    function addRoom() {
+        const newId = rooms.length > 0 ? Math.max(...rooms.map(r => r.id)) + 1 : 1;
+        rooms.push({ id: newId, roomNumber: '', roomType: '', ratePerNight: 0 });
+        renderRooms();
+        updatePreview();
+    }
+
+    function removeRoom(id) {
+        if (rooms.length > 1) {
+            rooms = rooms.filter(room => room.id !== id);
             renderRooms();
             updatePreview();
         }
+    }
 
-        function removeRoom(id) {
-            if (rooms.length > 1) {
-                rooms = rooms.filter(room => room.id !== id);
-                renderRooms();
-                updatePreview();
-            }
-        }
-
-        function updateRoom(id, field, value) {
-            const room = rooms.find(r => r.id === id);
-            if (room) {
-                room[field] = value;
-                updatePreview();
-            }
-        }
-
-        function updatePreview() {
-            const nights = calculateNights();
-            document.getElementById('nights').value = nights;
-
-            const totals = calculateTotals();
-
-            // Update summary
-            document.getElementById('summaryGross').textContent = `₹${totals.grossAmount.toFixed(2)}`;
-            document.getElementById('summaryTotal').textContent = `₹${totals.totalAmount.toFixed(2)}`;
-            document.getElementById('summaryBalance').textContent = `₹${totals.balanceDue.toFixed(2)}`;
-
-            // Update preview
-            document.getElementById('prevCustomerName').textContent = document.getElementById('customerName').value;
-            document.getElementById('prevCustomerAddress').textContent = document.getElementById('customerAddress').value;
-            document.getElementById('prevCustomerMobile').textContent = document.getElementById('customerMobile').value;
-            document.getElementById('prevGstNumber').textContent = document.getElementById('gstNumber').value;
-            document.getElementById('prevBookingNumber').textContent = document.getElementById('bookingNumber').value;
-            
-            const today = new Date();
-            document.getElementById('prevCurrentDate').textContent = formatDate(today);
-            document.getElementById('prevCheckIn').textContent = formatDate(document.getElementById('checkIn').value);
-            document.getElementById('prevCheckOut').textContent = formatDate(document.getElementById('checkOut').value);
-
-            // Update rooms table
-            const roomsTableBody = document.getElementById('prevRoomsTable');
-            roomsTableBody.innerHTML = rooms.map(room => `
-                <tr>
-                    <td>${room.roomNumber}</td>
-                    <td>${room.roomType}</td>
-                    <td class="right">₹${room.ratePerNight.toFixed(2)}</td>
-                    <td class="center">${nights}</td>
-                    <td class="right">₹${(room.ratePerNight * nights).toFixed(2)}</td>
-                </tr>
-            `).join('');
-
-            // Update payment and summary
-            const paymentMode = document.getElementById('paymentMode').value;
-            document.getElementById('prevPaymentMode').textContent = paymentMode.replace('_', ' ').toUpperCase();
-            document.getElementById('prevAmountWords').textContent = numberToWords(totals.totalAmount);
-
-            document.getElementById('prevGrossAmount').textContent = `₹${totals.grossAmount.toFixed(2)}`;
-            document.getElementById('prevDiscount').textContent = `₹${totals.discountAmount.toFixed(2)}`;
-            document.getElementById('prevGstRate').textContent = totals.gstRate;
-            document.getElementById('prevGstAmount').textContent = `₹${totals.gstAmount.toFixed(2)}`;
-            document.getElementById('prevAdvance').textContent = `₹${parseFloat(document.getElementById('advancePayment').value).toFixed(2)}`;
-            document.getElementById('prevNetAmount').textContent = `₹${totals.totalAmount.toFixed(2)}`;
-            document.getElementById('prevBalanceDue').textContent = `₹${totals.balanceDue.toFixed(2)}`;
-        }
-
-        function showPreview() {
+    function updateRoom(id, field, value) {
+        const room = rooms.find(r => r.id === id);
+        if (room) {
+            room[field] = value;
             updatePreview();
-            document.getElementById('editorSection').classList.add('hidden');
-            document.getElementById('invoicePreview').classList.add('active');
-            window.scrollTo(0, 0);
         }
+    }
 
-        function hidePreview() {
-            document.getElementById('editorSection').classList.remove('hidden');
-            document.getElementById('invoicePreview').classList.remove('active');
-            window.scrollTo(0, 0);
-        }
+    function updatePreview() {
+        const nights = calculateNights();
+        document.getElementById('nights').value = nights;
 
-        // Initialize
-        renderRooms();
+        const totals = calculateTotals();
+
+        // Update summary
+        document.getElementById('summaryGross').textContent = `₹${totals.grossAmount.toFixed(2)}`;
+        document.getElementById('summaryTotal').textContent = `₹${totals.totalAmount.toFixed(2)}`;
+        document.getElementById('summaryBalance').textContent = `₹${totals.balanceDue.toFixed(2)}`;
+
+        // Update preview
+        document.getElementById('prevCustomerName').textContent = document.getElementById('customerName').value;
+        document.getElementById('prevCustomerAddress').textContent = document.getElementById('customerAddress').value;
+        document.getElementById('prevCustomerMobile').textContent = document.getElementById('customerMobile').value;
+        document.getElementById('prevGstNumber').textContent = document.getElementById('gstNumber').value;
+        document.getElementById('prevBookingNumber').textContent = document.getElementById('bookingNumber').value;
+
+        const today = new Date();
+        document.getElementById('prevCurrentDate').textContent = formatDate(today);
+        document.getElementById('prevCheckIn').textContent = formatDate(document.getElementById('checkIn').value);
+        document.getElementById('prevCheckOut').textContent = formatDate(document.getElementById('checkOut').value);
+
+        // Update rooms table
+        const roomsTableBody = document.getElementById('prevRoomsTable');
+        roomsTableBody.innerHTML = rooms.map(room => `
+            <tr>
+                <td>${room.roomNumber}</td>
+                <td>${room.roomType}</td>
+                <td class="right">₹${room.ratePerNight.toFixed(2)}</td>
+                <td class="center">${nights}</td>
+                <td class="right">₹${(room.ratePerNight * nights).toFixed(2)}</td>
+            </tr>
+        `).join('');
+
+        // Update payment and summary
+        const paymentMode = document.getElementById('paymentMode').value;
+        document.getElementById('prevPaymentMode').textContent = paymentMode.replace('_', ' ').toUpperCase();
+        document.getElementById('prevAmountWords').textContent = numberToWords(totals.totalAmount);
+
+        document.getElementById('prevGrossAmount').textContent = `₹${totals.grossAmount.toFixed(2)}`;
+        document.getElementById('prevDiscount').textContent = `₹${totals.discountAmount.toFixed(2)}`;
+        document.getElementById('prevGstRate').textContent = totals.gstRate;
+        document.getElementById('prevGstAmount').textContent = `₹${totals.gstAmount.toFixed(2)}`;
+        document.getElementById('prevAdvance').textContent = `₹${parseFloat(document.getElementById('advancePayment').value).toFixed(2)}`;
+        document.getElementById('prevNetAmount').textContent = `₹${totals.totalAmount.toFixed(2)}`;
+        document.getElementById('prevBalanceDue').textContent = `₹${totals.balanceDue.toFixed(2)}`;
+    }
+
+    function showPreview() {
         updatePreview();
-    </script>
-</body>
-</html>
+        document.getElementById('editorSection').classList.add('hidden');
+        document.getElementById('invoicePreview').classList.add('active');
+        window.scrollTo(0, 0);
+    }
+
+    function hidePreview() {
+        document.getElementById('editorSection').classList.remove('hidden');
+        document.getElementById('invoicePreview').classList.remove('active');
+        window.scrollTo(0, 0);
+    }
+
+    // Initialize
+    renderRooms();
+    updatePreview();
+
+    // Allow Enter key to search
+    document.getElementById('searchBookingNumber').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            searchBooking();
+        }
+    });
+</script>

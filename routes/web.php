@@ -34,6 +34,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Profile routes (WITHOUT check.license)
     Route::get('/invoice', [InvoiceController::class, 'edit'])->name('invoice.edit');
+    Route::get('/invoice/booking/{bookingNumber}', [InvoiceController::class, 'getBookingByNumber']);
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -58,9 +60,11 @@ Route::middleware(['auth', 'verified', 'check.license'])->group(function () {
     Route::delete('extra-charges/{charge}', [BookingController::class, 'deleteExtraCharge'])->name('extra-charges.destroy');
     Route::post('bookings/{booking}/payment', [BookingController::class, 'addPayment'])->name('bookings.payment');
     Route::post('bookings/{booking}/cancel', [BookingController::class, 'cancel'])->name('bookings.cancel');
+
     Route::post('bookings/{booking}/check-in', [BookingController::class, 'checkIn'])->name('bookings.check-in');
     Route::post('bookings/{booking}/check-out', [BookingController::class, 'checkOut'])->name('bookings.check-out');
     Route::get('bookings/{booking}/invoice', [BookingController::class, 'invoice'])->name('bookings.invoice');
+    Route::DELETE('bookings/{booking_id}', [BookingController::class, 'destroy'])->name('bookings.destroy');
 
     // Reports Routes
     Route::get('reports/bookings', [ReportController::class, 'bookings'])->name('reports.bookings');

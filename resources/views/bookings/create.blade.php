@@ -53,15 +53,14 @@ class="absolute bg-white border rounded shadow w-full mt-1 hidden z-50 max-h-60 
 
 {{-- REGISTRATION NO --}}
 <div class="mb-4">
-    <label class="block text-sm font-medium mb-1">Registration No*</label>
-    <input type="text" name="registration_no"
-           value="{{ old('registration_no') }}"
-           class="w-full px-3 py-2 border rounded">
-           @error('registration_no')
+<label class="block text-sm font-medium mb-1">Registration No *</label>
+<input type="text" name="registration_no"
+value="{{ old('registration_no') }}"
+class="w-full px-3 py-2 border rounded @error('registration_no') border-red-500 @enderror">
+@error('registration_no')
 <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
 @enderror
 </div>
-
 
 {{-- EMAIL --}}
 <div class="mb-4">
@@ -84,16 +83,17 @@ class="w-full px-3 py-2 border rounded">{{ old('customer_address') }}</textarea>
 <label class="block text-sm font-medium mb-1">ID Proof Type</label>
 <select name="id_proof_type" class="w-full px-3 py-2 border rounded">
 <option value="">Select</option>
-<option value="aadhar">Aadhar</option>
-<option value="pan">PAN</option>
-<option value="passport">Passport</option>
-<option value="driving_license">Driving License</option>
+<option value="aadhar" {{ old('id_proof_type')=='aadhar' ? 'selected' : '' }}>Aadhar</option>
+<option value="pan" {{ old('id_proof_type')=='pan' ? 'selected' : '' }}>PAN</option>
+<option value="passport" {{ old('id_proof_type')=='passport' ? 'selected' : '' }}>Passport</option>
+<option value="driving_license" {{ old('id_proof_type')=='driving_license' ? 'selected' : '' }}>Driving License</option>
 </select>
 </div>
 
 <div>
 <label class="block text-sm font-medium mb-1">ID Proof Number</label>
 <input type="text" name="id_proof_number"
+value="{{ old('id_proof_number') }}"
 class="w-full px-3 py-2 border rounded">
 </div>
 </div>
@@ -103,12 +103,14 @@ class="w-full px-3 py-2 border rounded">
 <div>
 <label class="block text-sm font-medium mb-1">Company Name</label>
 <input type="text" name="company_name"
+value="{{ old('company_name') }}"
 class="w-full px-3 py-2 border rounded">
 </div>
 
 <div>
 <label class="block text-sm font-medium mb-1">GST Number</label>
 <input type="text" name="gst_number"
+value="{{ old('gst_number') }}"
 class="w-full px-3 py-2 border rounded">
 </div>
 </div>
@@ -122,12 +124,6 @@ class="w-full px-3 py-2 border rounded">
 <div class="grid grid-cols-3 gap-4 mb-4">
 <div>
 <label class="block text-sm mb-1">Check-in *</label>
-{{-- <input type="datetime-local" name="check_in"
-class="w-full px-3 py-2 border rounded">
-  @error('check_in')
-<p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-@enderror --}}
-
 <input type="datetime-local" name="check_in"
 value="{{ old('check_in') }}"
 class="w-full px-3 py-2 border rounded @error('check_in') border-red-500 @enderror">
@@ -136,97 +132,78 @@ class="w-full px-3 py-2 border rounded @error('check_in') border-red-500 @enderr
 @enderror
 </div>
 
-
 <div>
 <label class="block text-sm mb-1">Check-out *</label>
 <input type="datetime-local" name="check_out"
 value="{{ old('check_out') }}"
-class="w-full px-3 py-2 border rounded">
+class="w-full px-3 py-2 border rounded @error('check_out') border-red-500 @enderror">
 @error('check_out')
 <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
 @enderror
 </div>
 
-
 <div>
-<label class="block text-sm mb-1">Adults </label>
+<label class="block text-sm mb-1">Adults</label>
 <input type="number" name="number_of_adults"
-value="1" min="1"
+value="{{ old('number_of_adults', 1) }}" min="1"
 class="w-full px-3 py-2 border rounded">
- @error('number_of_adults')
+@error('number_of_adults')
 <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
 @enderror
 </div>
 
 <div>
-<label class="block text-sm mb-1">Children </label>
+<label class="block text-sm mb-1">Children</label>
 <input type="number" name="number_of_children"
-value="0" min="0"
+value="{{ old('number_of_children', 0) }}" min="0"
 class="w-full px-3 py-2 border rounded">
- @error('number_of_children')
+@error('number_of_children')
 <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
 @enderror
 </div>
-
 </div>
 
+{{-- 🔍 ROOM SEARCH --}}
+<div class="mb-3">
+<input type="text" id="roomSearch"
+placeholder="Search room no / type / price"
+class="w-full border rounded px-3 py-2">
+</div>
 
-{{-- <div class="mb-4">
-   <label class="block text-sm font-medium mb-2">Select Rooms *</label>
-
-    <div class="grid grid-cols-2 gap-4 max-h-64 overflow-y-auto border rounded p-4">
-        @foreach ($rooms as $room)
-            <label class="flex items-center p-3 border rounded hover:bg-gray-50">
-                <input type="checkbox"
-                       name="room_ids[]"
-                       value="{{ $room->id }}"
-                       class="mr-3">
-
-                <div>
-                    <div class="font-semibold">Room {{ $room->room_number }}</div>
-                    <div class="text-sm text-gray-600">{{ $room->roomType->name }}</div>
-                    <div class="text-sm text-blue-600">₹{{ number_format($room->base_price,2) }}</div>
-                </div>
-            </label>
-        @endforeach
-    </div>
-
-    @error('room_ids')
-        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-    @enderror
-</div> --}}
-
+{{-- ROOM SELECTION --}}
 <div class="mb-4">
-    <label class="block text-sm font-medium mb-2">Select Rooms *</label>
+<label class="block text-sm font-medium mb-2">Select Rooms *</label>
 
-    <div class="grid grid-cols-2 gap-4 max-h-64 overflow-y-auto border rounded p-4
-        @error('room_ids') border-red-500 @enderror">
+<div class="grid grid-cols-2 gap-4 max-h-64 overflow-y-auto border rounded p-4
+@error('room_ids') border-red-500 @enderror">
 
-        @foreach ($rooms as $room)
-            <label class="flex items-center p-3 border rounded hover:bg-gray-50">
-                <input type="checkbox"
-                       name="room_ids[]"
-                       value="{{ $room->id }}"
-                       class="mr-3"
-                       {{ in_array($room->id, old('room_ids', [])) ? 'checked' : '' }}>
+@foreach ($rooms as $room)
+<label class="room-item flex items-center p-3 border rounded hover:bg-gray-50"
+data-room="{{ strtolower($room->room_number) }}"
+data-type="{{ strtolower($room->roomType->name) }}"
+data-price="{{ $room->base_price }}">
 
-                <div>
-                    <div class="font-semibold">Room {{ $room->room_number }}</div>
-                    <div class="text-sm text-gray-600">{{ $room->roomType->name }}</div>
-                    <div class="text-sm text-blue-600">
-                        ₹{{ number_format($room->base_price,2) }}
-                    </div>
-                </div>
-            </label>
-        @endforeach
-    </div>
+<input type="checkbox"
+name="room_ids[]"
+value="{{ $room->id }}"
+class="mr-3"
+{{ in_array($room->id, old('room_ids', [])) ? 'checked' : '' }}>
 
-    @error('room_ids')
-        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-    @enderror
+<div>
+<div class="font-semibold">Room {{ $room->room_number }}</div>
+<div class="text-sm text-gray-600">{{ $room->roomType->name }}</div>
+<div class="text-sm text-blue-600">
+₹{{ number_format($room->base_price,2) }}
+</div>
+</div>
+</label>
+@endforeach
 </div>
 
-
+@error('room_ids')
+<p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+@enderror
+</div>
 
 </div>
 </div>
@@ -236,55 +213,37 @@ class="w-full px-3 py-2 border rounded">
 <div class="bg-white rounded-lg shadow p-6 sticky top-4">
 <h3 class="text-lg font-semibold mb-4">Payment</h3>
 
-{{-- <div class="mb-4">
+<div class="mb-4">
 <label class="block text-sm mb-1">Advance Payment</label>
 <input type="number" name="advance_payment"
-value="0"
-class="w-full px-3 py-2 border rounded">
-</div> --}}
+value="{{ old('advance_payment', 0) }}"
+class="w-full px-3 py-2 border rounded
+@error('advance_payment') border-red-500 @enderror">
 
-<div class="mb-4">
-    <label class="block text-sm mb-1">Advance Payment</label>
-    <input type="number" name="advance_payment"
-           value="{{ old('advance_payment', 0) }}"
-           class="w-full px-3 py-2 border rounded
-           @error('advance_payment') border-red-500 @enderror">
-
-    @error('advance_payment')
-        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-    @enderror
+@error('advance_payment')
+<p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+@enderror
 </div>
 
 <div class="mb-6">
-    <label class="block text-sm mb-1">Payment Mode *</label>
-    <select name="payment_mode"
-        class="w-full px-3 py-2 border rounded
-        @error('payment_mode') border-red-500 @enderror">
+<label class="block text-sm mb-1">Payment Mode *</label>
+<select name="payment_mode"
+class="w-full px-3 py-2 border rounded
+@error('payment_mode') border-red-500 @enderror">
 
-        <option value="">Select Payment Mode</option>
-        <option value="cash" {{ old('payment_mode')=='cash' ? 'selected' : '' }}>Cash</option>
-        <option value="card" {{ old('payment_mode')=='card' ? 'selected' : '' }}>Card</option>
-        <option value="upi" {{ old('payment_mode')=='upi' ? 'selected' : '' }}>UPI</option>
-        <option value="bank_transfer" {{ old('payment_mode')=='bank_transfer' ? 'selected' : '' }}>
-            Bank Transfer
-        </option>
-    </select>
-
-    @error('payment_mode')
-        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-    @enderror
-</div>
-
-
-{{-- <div class="mb-6">
-<label class="block text-sm mb-1">Payment Mode</label>
-<select name="payment_mode" class="w-full px-3 py-2 border rounded">
-<option value="cash">Cash</option>
-<option value="card">Card</option>
-<option value="upi">UPI</option>
-<option value="bank_transfer">Bank Transfer</option>
+<option value="">Select Payment Mode</option>
+<option value="cash" {{ old('payment_mode')=='cash' ? 'selected' : '' }}>Cash</option>
+<option value="card" {{ old('payment_mode')=='card' ? 'selected' : '' }}>Card</option>
+<option value="upi" {{ old('payment_mode')=='upi' ? 'selected' : '' }}>UPI</option>
+<option value="bank_transfer" {{ old('payment_mode')=='bank_transfer' ? 'selected' : '' }}>
+Bank Transfer
+</option>
 </select>
-</div> --}}
+
+@error('payment_mode')
+<p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+@enderror
+</div>
 
 <button type="submit"
 class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded font-semibold">
@@ -292,7 +251,7 @@ Create Booking
 </button>
 
 <a href="{{ route('bookings.index') }}"
-class="block text-center mt-3 text-gray-600">Cancel</a>
+class="block text-center mt-3 text-gray-600 hover:text-gray-800">Cancel</a>
 </div>
 </div>
 
@@ -343,6 +302,27 @@ document.querySelector('[name="company_name"]').value = c.company_name ?? '';
 document.querySelector('[name="gst_number"]').value = c.gst_number ?? '';
 resultBox.classList.add('hidden');
 }
+
+// Hide dropdown when clicking outside
+document.addEventListener('click', function(e) {
+if (!mobileInput.contains(e.target) && !resultBox.contains(e.target)) {
+resultBox.classList.add('hidden');
+}
+});
+</script>
+
+{{-- ================= ROOM SEARCH SCRIPT ================= --}}
+<script>
+document.getElementById('roomSearch').addEventListener('keyup', function () {
+let q = this.value.toLowerCase();
+document.querySelectorAll('.room-item').forEach(room => {
+let match =
+room.dataset.room.includes(q) ||
+room.dataset.type.includes(q) ||
+room.dataset.price.includes(q);
+room.style.display = match ? 'flex' : 'none';
+});
+});
 </script>
 
 @endsection

@@ -62,7 +62,7 @@
             <div class="grid grid-cols-3 gap-4 mb-4">
                 <div>
                     <label class="block text-gray-700 text-sm font-bold mb-2">GST %</label>
-                    <input type="number" name="gst_percentage" value="{{ old('gst_percentage', 12.00) }}" step="0.01"
+                    <input type="number" name="gst_percentage" value="{{ old('gst_percentage', 0.00) }}" step="0.01"
                         class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500">
                     @error('gst_percentage')
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>

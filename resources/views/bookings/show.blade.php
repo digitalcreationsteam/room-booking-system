@@ -156,44 +156,49 @@
     <!-- Sidebar -->
     <div>
         <!-- Actions -->
-       <div class="bg-white rounded-lg shadow p-6 mb-6">
-    <!-- <h3 class="text-lg font-semibold mb-4">Actions</h3> -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <!-- <h3 class="text-lg font-semibold mb-4">Actions</h3> -->
 
-    <div class="flex flex-wrap gap-2">
-        <a href="{{ route('bookings.invoice', $booking) }}" target="_blank"
-           class="bg-blue-600 hover:bg-blue-700 text-white text-center px-4 py-2 rounded flex items-center justify-center">
-            <i class="fas fa-file-invoice mr-2"></i> View Invoice
-        </a>
+            <div class="flex flex-wrap gap-2">
+                <a href="{{ route('bookings.invoice', $booking) }}" target="_blank"
+                   class="bg-blue-600 hover:bg-blue-700 text-white text-center px-4 py-2 rounded flex items-center justify-center">
+                    <i class="fas fa-file-invoice mr-2"></i> View Invoice
+                </a>
 
-        @if($booking->booking_status == 'confirmed')
-            <form action="{{ route('bookings.check-in', $booking) }}" method="POST">
-                @csrf
-                <button type="submit"
-                        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded flex items-center">
-                    <i class="fas fa-sign-in-alt mr-2"></i> Check In
+                @if($booking->booking_status == 'confirmed')
+                    <form action="{{ route('bookings.check-in', $booking) }}" method="POST">
+                        @csrf
+                        <button type="submit"
+                                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded flex items-center">
+                            <i class="fas fa-sign-in-alt mr-2"></i> Check In
+                        </button>
+                    </form>
+                @endif
+
+                @if($booking->booking_status == 'checked_in')
+                    <form action="{{ route('bookings.check-out', $booking) }}" method="POST">
+                        @csrf
+                        <button type="submit"
+                                class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded flex items-center">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Check Out
+                        </button>
+                    </form>
+                @endif
+
+                @if($booking->booking_status != 'cancelled' && $booking->booking_status != 'checked_out')
+                    <button onclick="document.getElementById('cancelModal').classList.remove('hidden')"
+                            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded flex items-center">
+                        <i class="fas fa-times mr-2"></i> Cancel Booking
+                    </button>
+                @endif
+
+                <!-- Delete Button (Available anytime) -->
+                <button onclick="document.getElementById('deleteModal').classList.remove('hidden')"
+                        class="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded flex items-center">
+                    <i class="fas fa-trash mr-2"></i> Delete
                 </button>
-            </form>
-        @endif
-
-        @if($booking->booking_status == 'checked_in')
-            <form action="{{ route('bookings.check-out', $booking) }}" method="POST">
-                @csrf
-                <button type="submit"
-                        class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded flex items-center">
-                    <i class="fas fa-sign-out-alt mr-2"></i> Check Out
-                </button>
-            </form>
-        @endif
-
-        @if($booking->booking_status != 'cancelled' && $booking->booking_status != 'checked_out')
-            <button onclick="document.getElementById('cancelModal').classList.remove('hidden')"
-                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded flex items-center">
-                <i class="fas fa-times mr-2"></i> Cancel Booking
-            </button>
-        @endif
-    </div>
-</div>
-
+            </div>
+        </div>
 
         <!-- Payment Summary -->
         <div class="bg-white rounded-lg shadow p-6">
@@ -363,6 +368,29 @@
                 <button type="submit" class="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">Cancel Booking</button>
                 <button type="button" onclick="document.getElementById('cancelModal').classList.add('hidden')"
                     class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded">Close</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Booking Modal -->
+<div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full">
+        <h3 class="text-lg font-semibold mb-4 text-gray-800">Delete Booking</h3>
+        <p class="text-gray-600 mb-4">
+            Are you sure you want to permanently delete this booking? This action cannot be undone.
+        </p>
+        <form action="{{ route('bookings.destroy', $booking) }}" method="POST">
+            @csrf
+            @method('DELETE')
+            <div class="flex gap-2">
+                <button type="submit" class="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">
+                    Yes, Delete
+                </button>
+                <button type="button" onclick="document.getElementById('deleteModal').classList.add('hidden')"
+                    class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded">
+                    Cancel
+                </button>
             </div>
         </form>
     </div>
