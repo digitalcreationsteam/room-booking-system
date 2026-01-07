@@ -286,7 +286,7 @@
 
            <div class="left-bottom">
                 <strong>Payment Mode:</strong> {{ ucfirst(str_replace('_',' ',$booking->payment_mode)) }}<br><br>
-                <strong>Amount in Words:</strong> 
+                <strong>Amount in Words:</strong>
                 <span id="amountInWords"></span>
             </div>
         </div>

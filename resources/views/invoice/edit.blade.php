@@ -648,7 +648,7 @@
                     <div class="footer-grid">
                         <div>
                             <div class="certification">
-                                hereby certify that our Registration certificate Under the B.S.T.Act 1959 is in force on the date on which the sales of the good specified in this bill/ cash memorandum is made by me/us and that the transaction of sale covered by this bill/cash Memorandum has been effected by me/us in the regular course of my/our business.
+                               I/We hereby certify that our Registration certificate Under the B.S.T.Act 1959 is in force on the date on which the sales of the good specified in this bill/ cash memorandum is made by me/us and that the transaction of sale covered by this bill/cash Memorandum has been effected by me/us in the regular course of my/our business.
                             </div>
                             <div class="payment-details">
                                 <strong>Payment Mode:</strong>
