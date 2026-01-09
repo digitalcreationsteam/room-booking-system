@@ -20,7 +20,6 @@ class InvoiceController extends Controller
         ]);
     }
 
-
     // public function getBookingByNumber($bookingNumber)
     // {
     //     $booking = Booking::with([
@@ -57,42 +56,40 @@ class InvoiceController extends Controller
     // }
 
     public function getBookingByNumber($bookingNumber)
-{
-    $booking = Booking::with(['rooms.roomType', 'bookingRooms.room.roomType'])
-        ->where('booking_number', $bookingNumber)
-        ->first();
+    {
+        $booking = Booking::with(['rooms.roomType', 'bookingRooms.room.roomType'])
+            ->where('booking_number', $bookingNumber)
+            ->first();
 
-    if (!$booking) {
+        if (!$booking) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Booking not found'
+            ], 404);
+        }
+
         return response()->json([
-            'success' => false,
-            'message' => 'Booking not found'
-        ], 404);
+            'success' => true,
+            'booking' => [
+                'customer_name' => $booking->customer_name,
+                'customer_mobile' => $booking->customer_mobile,
+                'customer_address' => $booking->customer_address,
+                'gst_number' => $booking->gst_number,
+                'booking_number' => $booking->booking_number,
+                'check_in' => $booking->check_in,
+                'check_out' => $booking->check_out,
+                'payment_mode' => $booking->payment_mode,
+                'discount_amount' => $booking->discount_amount ?? 0,
+                'gst_percentage' => $booking->gst_percentage ?? 0,
+                'advance_payment' => $booking->advance_payment ?? 0,
+                'rooms' => $booking->bookingRooms->map(function ($br) {
+                    return [
+                        'room_number' => $br->room->room_number,
+                        'room_type' => $br->room->roomType->name,
+                        'room_price' => $br->room_price
+                    ];
+                })
+            ]
+        ]);
     }
-
-    return response()->json([
-        'success' => true,
-        'booking' => [
-            'customer_name' => $booking->customer_name,
-            'customer_mobile' => $booking->customer_mobile,
-            'customer_address' => $booking->customer_address,
-            'gst_number' => $booking->gst_number,
-            'booking_number' => $booking->booking_number,
-            'check_in' => $booking->check_in,
-            'check_out' => $booking->check_out,
-            'payment_mode' => $booking->payment_mode,
-            'discount_amount' => $booking->discount_amount ?? 0,
-            'gst_percentage' => $booking->gst_percentage ?? 0,
-            'advance_payment' => $booking->advance_payment ?? 0,
-            'rooms' => $booking->bookingRooms->map(function($br) {
-                return [
-                    'room_number' => $br->room->room_number,
-                    'room_type' => $br->room->roomType->name,
-                    'room_price' => $br->room_price
-                ];
-            })
-        ]
-    ]);
-}
-
-
 }

@@ -64,7 +64,7 @@ Route::middleware(['auth', 'verified', 'check.license'])->group(function () {
     Route::post('bookings/{booking}/check-in', [BookingController::class, 'checkIn'])->name('bookings.check-in');
     Route::post('bookings/{booking}/check-out', [BookingController::class, 'checkOut'])->name('bookings.check-out');
     Route::get('bookings/{booking}/invoice', [BookingController::class, 'invoice'])->name('bookings.invoice');
-    Route::DELETE('bookings/{booking_id}', [BookingController::class, 'destroy'])->name('bookings.destroy');
+    Route::DELETE('bookings/{booking_id}', [BookingController::class, 'destroy']);
 
     // Reports Routes
     Route::get('reports/bookings', [ReportController::class, 'bookings'])->name('reports.bookings');

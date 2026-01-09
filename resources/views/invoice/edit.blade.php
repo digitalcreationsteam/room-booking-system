@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Dynamic Invoice Generator</title>
     <style>
         * {
@@ -161,10 +160,6 @@
             margin-bottom: 30px;
         }
 
-        .form-grid.full {
-            grid-template-columns: 1fr;
-        }
-
         .form-group {
             display: flex;
             flex-direction: column;
@@ -250,7 +245,6 @@
             color: #1f2937;
         }
 
-        /* Loader */
         .loader {
             display: none;
             text-align: center;
@@ -276,7 +270,11 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Invoice Preview */
+        .hidden {
+            display: none;
+        }
+
+        /* ================= INVOICE PREVIEW - MATCHING Invoice.blade.php ================= */
         .invoice-preview {
             background: white;
             display: none;
@@ -286,166 +284,187 @@
             display: block;
         }
 
-        .invoice-container {
+        .preview-actions {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* A4 Page Styling */
+        @page { size: A4 portrait; margin: 0; }
+
+        .invoice-page {
+            font-family: Arial, sans-serif;
             width: 210mm;
-            height: 297mm;
+            min-height: 297mm;
             padding: 10mm;
             margin: 0 auto;
-            background: white;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            background: #fff;
+            font-size: 11pt;
+            color: #333;
             position: relative;
-            display: flex;
-            flex-direction: column;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
 
-        .invoice-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
+        /* ================= HEADER ================= */
         .invoice-header {
             text-align: center;
-            border-bottom: 2px solid #999;
+            border-bottom: 1px solid #999;
             padding-bottom: 15px;
             margin-bottom: 20px;
         }
 
         .invoice-header h1 {
-            font-size: 20pt;
+            font-size: 16pt;
             color: #2c3e50;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
-        .invoice-address {
+        .address {
             font-size: 10pt;
-            line-height: 1.6;
-            color: #555;
+            line-height: 1.4;
         }
 
-        .invoice-details {
+        /* ================= DETAILS ================= */
+        .details-box {
             display: flex;
             gap: 20px;
             margin-bottom: 25px;
             border-bottom: 1px solid #999;
-            padding-bottom: 15px;
+            padding-bottom: 10px;
+        }
+
+        .details-column {
+            width: 50%;
             font-size: 10pt;
         }
 
-        .invoice-details > div {
-            flex: 1;
-        }
-
-        .invoice-details .right {
+        .details-column.right {
             text-align: right;
         }
 
         .detail-row {
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
-        .detail-row strong {
+        .details-column.right .detail-row {
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .label {
+            min-width: 130px;
+            font-weight: 600;
             color: #555;
-            min-width: 120px;
-            display: inline-block;
         }
 
-        .invoice-table {
+        .label::after {
+            content: " : ";
+        }
+
+        .value {
+            color: #000;
+        }
+
+        /* ================= TABLE ================= */
+        .items-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
             font-size: 10pt;
+            margin-top: 10px;
+            margin-bottom: 20px;
         }
 
-        .invoice-table th,
-        .invoice-table td {
+        .items-table th,
+        .items-table td {
             border: 1px solid #ddd;
-            padding: 10px;
+            padding: 7px;
         }
 
-        .invoice-table th {
+        .items-table th {
             background: #f4f4f4;
-            font-weight: 600;
         }
 
-        .invoice-table .right {
+        .items-table td.right {
             text-align: right;
         }
 
-        .invoice-table .center {
+        .items-table td.center {
             text-align: center;
         }
 
-        .invoice-footer {
+        /* ================= BOTTOM SECTION ================= */
+        .bottom-section {
             margin-top: 30px;
-            border-top: 1px dashed #999;
-            padding-top: 15px;
+            page-break-inside: avoid;
         }
 
-        .footer-grid {
+        .two-column-row {
             display: flex;
-            gap: 20px;
+            gap: 15px;
+            border-top: 1px dashed #999;
+            padding-top: 12px;
+            align-items: stretch;
         }
 
-        .footer-grid > div {
+        .left-column,
+        .right-column {
+            width: 50%;
+        }
+
+        /* LEFT SPLIT */
+        .left-split {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            font-size: 9.5pt;
+        }
+
+        .left-top {
             flex: 1;
-        }
-
-        .certification {
-            font-size: 9pt;
-            line-height: 1.6;
-            color: #555;
-            padding-bottom: 15px;
+            padding-bottom: 10px;
             border-bottom: 1px solid #ccc;
-            margin-bottom: 15px;
+            line-height: 1.5;
         }
 
-        .payment-details {
+        .left-bottom {
+            flex: 1;
+            padding-top: 10px;
             font-size: 10pt;
         }
 
-        .payment-details strong {
-            display: block;
-            margin-bottom: 5px;
-        }
-
+        /* SUMMARY */
         .summary-box {
             font-size: 10pt;
         }
 
-        .summary-box-row {
+        .summary-row {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #f0f0f0;
+            padding: 6px 0;
         }
 
-        .summary-box-row.total {
-            font-weight: 700;
+        .summary-row strong {
             font-size: 11pt;
-            border-top: 2px solid #333;
-            border-bottom: 2px solid #333;
         }
 
+        /* ================= SIGNATURE ================= */
         .signatures {
+            margin-top: 25px;
+            width: 100%;
             display: flex;
             justify-content: space-between;
-            margin-top: 30px;
         }
 
-        .signature-box {
+        .signature {
             width: 45%;
             text-align: center;
+            font-size: 10pt;
         }
 
-        .signature-line {
+        .signature .line {
             border-top: 1px solid #333;
-            margin-bottom: 8px;
-            padding-top: 40px;
-        }
-
-        .hidden {
-            display: none;
+            margin-top: 35px;
+            padding-top: 5px;
         }
 
         @media print {
@@ -453,15 +472,13 @@
                 background: white;
                 padding: 0;
             }
-            .editor-section {
-                display: none;
+            .editor-section,
+            .preview-actions {
+                display: none !important;
             }
-            .invoice-container {
+            .invoice-page {
                 box-shadow: none;
                 page-break-after: always;
-            }
-            .btn {
-                display: none;
             }
         }
     </style>
@@ -519,6 +536,10 @@
                     <label>Booking Number</label>
                     <input type="text" id="bookingNumber" value="BK-2026-001" readonly>
                 </div>
+                <div class="form-group">
+                    <label>Registration No</label>
+                    <input type="text" id="registrationNo" value="REG-12345" oninput="updatePreview()">
+                </div>
             </div>
 
             <!-- Booking Details -->
@@ -564,8 +585,27 @@
                     <input type="number" id="discountAmount" value="0" min="0" step="0.01" oninput="updatePreview()">
                 </div>
                 <div class="form-group">
+                    <label>Discount Type</label>
+                    <select id="discountType" onchange="updatePreview()">
+                        <option value="flat">Flat Amount</option>
+                        <option value="percentage">Percentage</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label>GST Rate (%)</label>
                     <input type="number" id="gstRate" value="12" min="0" max="100" step="0.01" oninput="updatePreview()">
+                </div>
+                <div class="form-group">
+                    <label>Service Tax (₹)</label>
+                    <input type="number" id="serviceTax" value="0" min="0" step="0.01" oninput="updatePreview()">
+                </div>
+                <div class="form-group">
+                    <label>Extra Charges (₹)</label>
+                    <input type="number" id="extraCharges" value="0" min="0" step="0.01" oninput="updatePreview()">
+                </div>
+                <div class="form-group">
+                    <label>Other Charges (₹)</label>
+                    <input type="number" id="otherCharges" value="0" min="0" step="0.01" oninput="updatePreview()">
                 </div>
                 <div class="form-group">
                     <label>Advance Payment (₹)</label>
@@ -577,8 +617,8 @@
             <div class="section-title">Summary</div>
             <div class="summary-grid">
                 <div class="summary-item">
-                    <div class="summary-label">Gross Amount</div>
-                    <div class="summary-value" id="summaryGross">₹0.00</div>
+                    <div class="summary-label">Room Charges</div>
+                    <div class="summary-value" id="summaryRoomCharges">₹0.00</div>
                 </div>
                 <div class="summary-item">
                     <div class="summary-label">Total Amount</div>
@@ -592,94 +632,122 @@
         </div>
     </div>
 
-    <!-- Invoice Preview -->
+    <!-- Invoice Preview - Matching Invoice.blade.php Exactly -->
     <div class="invoice-preview" id="invoicePreview">
         <div class="container">
-            <div style="margin-bottom: 20px; text-align: center;">
+            <div class="preview-actions">
                 <button class="btn btn-secondary" onclick="hidePreview()">← Back to Editor</button>
                 <button class="btn btn-primary" onclick="window.print()">🖨️ Print / Save PDF</button>
             </div>
 
-            <div class="invoice-container">
-                <div class="invoice-content">
-                    <!-- Invoice Header -->
-                    <div class="invoice-header">
-                        <h1>HOTEL SHREE SAMARTH</h1>
-                        <div class="invoice-address">
-                            BHADRAKALI FRUIT MARKET, NASHIK<br>
-                            Mob: 8275610326 | Tel: (0253) 2576103 / 2506103<br>
-                            <strong>GSTIN:</strong> 27AAIHS1179J1Z | <strong>L.T.NO.:</strong> H:23 A 00085
-                        </div>
+            <div class="invoice-page">
+                <!-- HEADER -->
+                <div class="invoice-header">
+                    <h1 id="prevHotelName">HOTEL SHREE SAMARTH</h1>
+                    <div class="address">
+                        <span id="prevHotelAddress">BHADRAKALI FRUIT MARKET, NASHIK</span><br>
+                        Mob: <span id="prevHotelMobile">8275610326</span> | Tel: <span id="prevHotelTelephone">(0253) 2576103 / 2506103</span><br>
+                        <strong>GSTIN:</strong> <span id="prevHotelGST">27AAIHS1179J1Z</span> |
+                        <strong>L.T.NO.:</strong> <span id="prevHotelLT">H:23 A 00085</span>
                     </div>
-
-                    <!-- Invoice Details -->
-                    <div class="invoice-details">
-                        <div>
-                            <div class="detail-row"><strong>Name:</strong> <span id="prevCustomerName"></span></div>
-                            <div class="detail-row"><strong>Address:</strong> <span id="prevCustomerAddress"></span></div>
-                            <div class="detail-row"><strong>Mobile:</strong> <span id="prevCustomerMobile"></span></div>
-                            <div class="detail-row"><strong>GST No:</strong> <span id="prevGstNumber"></span></div>
-                        </div>
-                        <div class="right">
-                            <div class="detail-row"><strong>Date:</strong> <span id="prevCurrentDate"></span></div>
-                            <div class="detail-row"><strong>Invoice No:</strong> <span id="prevBookingNumber"></span></div>
-                            <div class="detail-row"><strong>Arrival:</strong> <span id="prevCheckIn"></span></div>
-                            <div class="detail-row"><strong>Departure:</strong> <span id="prevCheckOut"></span></div>
-                        </div>
-                    </div>
-
-                    <!-- Rooms Table -->
-                    <table class="invoice-table">
-                        <thead>
-                            <tr>
-                                <th>Room No</th>
-                                <th>Room Type</th>
-                                <th class="right">Rate / Night</th>
-                                <th class="center">Nights</th>
-                                <th class="right">Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody id="prevRoomsTable"></tbody>
-                    </table>
                 </div>
 
-                <!-- Invoice Footer -->
-                <div class="invoice-footer">
-                    <div class="footer-grid">
-                        <div>
-                            <div class="certification">
-                               I/We hereby certify that our Registration certificate Under the B.S.T.Act 1959 is in force on the date on which the sales of the good specified in this bill/ cash memorandum is made by me/us and that the transaction of sale covered by this bill/cash Memorandum has been effected by me/us in the regular course of my/our business.
+                <!-- DETAILS -->
+                <div class="details-box">
+                    <div class="details-column">
+                        <div class="detail-row"><span class="label">Name</span><span class="value" id="prevCustomerName"></span></div>
+                        <div class="detail-row"><span class="label">Address</span><span class="value" id="prevCustomerAddress"></span></div>
+                        <div class="detail-row"><span class="label">Mobile</span><span class="value" id="prevCustomerMobile"></span></div>
+                        <div class="detail-row"><span class="label">GST No</span><span class="value" id="prevGstNumber"></span></div>
+                    </div>
+
+                    <div class="details-column right">
+                        <div class="detail-row"><span class="label">Date</span><span class="value" id="prevCurrentDate"></span></div>
+                        <div class="detail-row"><span class="label">Registration No</span><span class="value" id="prevRegistrationNo"></span></div>
+                        <div class="detail-row"><span class="label">Invoice No</span><span class="value" id="prevBookingNumber"></span></div>
+                        <div class="detail-row"><span class="label">Arrival</span><span class="value" id="prevCheckIn"></span></div>
+                        <div class="detail-row"><span class="label">Departure</span><span class="value" id="prevCheckOut"></span></div>
+                    </div>
+                </div>
+
+                <!-- ROOMS TABLE -->
+                <table class="items-table">
+                    <thead>
+                        <tr>
+                            <th>Room No</th>
+                            <th>Room Type</th>
+                            <th>Rate / Night</th>
+                            <th>Nights</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="prevRoomsTable"></tbody>
+                </table>
+
+                <!-- BOTTOM SECTION -->
+                <div class="bottom-section">
+                    <div class="two-column-row">
+                        <div class="left-column left-split">
+                            <div class="left-top">
+                                I/We hereby certify that our Registration certificate Under the B.S.T.Act 1959 is in
+                                force on the date on which the sales of the good specified in this bill/ cash memorandum
+                                is made by me/us and that the transaction of sale covered by this bill/cash Memorandum has
+                                been effected by me/us in the regular course of my/our business.
                             </div>
-                            <div class="payment-details">
-                                <strong>Payment Mode:</strong>
-                                <span id="prevPaymentMode"></span><br><br>
-                                <strong>Amount in Words:</strong><br>
+
+                            <div class="left-bottom">
+                                <strong>Payment Mode:</strong> <span id="prevPaymentMode"></span><br><br>
+                                <strong>Amount in Words:</strong>
                                 <span id="prevAmountWords"></span>
                             </div>
                         </div>
-                        <div>
+
+                        <div class="right-column">
                             <div class="summary-box">
-                                <div class="summary-box-row">
-                                    <span>Gross Amount</span>
-                                    <span id="prevGrossAmount"></span>
+                                <div class="summary-row">
+                                    <span>Room Charges</span>
+                                    <span id="prevRoomCharges"></span>
                                 </div>
-                                <div class="summary-box-row">
-                                    <span>Discount</span>
+
+                                <div class="summary-row">
+                                    <span>
+                                        Discount
+                                        (<span id="prevDiscountDisplay"></span>)
+                                    </span>
                                     <span id="prevDiscount"></span>
                                 </div>
-                                <div class="summary-box-row">
+
+                                <div class="summary-row">
                                     <span>GST (<span id="prevGstRate"></span>%)</span>
                                     <span id="prevGstAmount"></span>
                                 </div>
-                                <div class="summary-box-row">
+
+                                <div class="summary-row">
+                                    <span>Service Tax</span>
+                                    <span id="prevServiceTax"></span>
+                                </div>
+
+                                <div class="summary-row" id="extraChargesRow" style="display: none;">
+                                    <span>Extra Charges</span>
+                                    <span id="prevExtraCharges"></span>
+                                </div>
+
+                                <div class="summary-row" id="otherChargesRow" style="display: none;">
+                                    <span>Other Charges</span>
+                                    <span id="prevOtherCharges"></span>
+                                </div>
+
+                                <div class="summary-row total">
+                                    <strong>Total Amount</strong>
+                                    <strong id="prevTotalAmount"></strong>
+                                </div>
+
+                                <div class="summary-row paid">
                                     <span>Advance Paid</span>
                                     <span id="prevAdvance"></span>
                                 </div>
-                                <div class="summary-box-row total">
-                                    <span>Net Amount</span>
-                                    <span id="prevNetAmount"></span>
-                                </div>
-                                <div class="summary-box-row">
+
+                                <div class="summary-row balance">
                                     <span>Balance Due</span>
                                     <span id="prevBalanceDue"></span>
                                 </div>
@@ -687,14 +755,14 @@
                         </div>
                     </div>
 
-                    <!-- Signatures -->
                     <div class="signatures">
-                        <div class="signature-box">
-                            <div class="signature-line"></div>
+                        <div class="signature">
+                            <div class="line"></div>
                             Cashier Signature
                         </div>
-                        <div class="signature-box">
-                            <div class="signature-line"></div>
+
+                        <div class="signature">
+                            <div class="line"></div>
                             Guest Signature
                         </div>
                     </div>
@@ -709,7 +777,7 @@
             { id: 2, roomNumber: '102', roomType: 'Standard Non-AC', ratePerNight: 1500 }
         ];
 
-        // Search Booking Function
+        // Search Booking Function with Auto-fill
         async function searchBooking() {
             const bookingNumber = document.getElementById('searchBookingNumber').value.trim();
 
@@ -718,16 +786,16 @@
                 return;
             }
 
-            // Show loader
             document.getElementById('loader').classList.add('show');
             hideAlert();
-            // /invoice/booking/{bookingNumber}
+
             try {
-                const response = await fetch(`invoice/booking/${bookingNumber}`, {
+                // Make API call to fetch booking data
+                const response = await fetch(`/invoice/booking/${bookingNumber}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
                     }
                 });
 
@@ -735,19 +803,19 @@
 
                 if (response.ok && data.success) {
                     fillBookingData(data.booking);
-                    showAlert('Booking found and loaded successfully!', 'success');
+                    showAlert('Booking found and loaded successfully! ✓', 'success');
                 } else {
-                    showAlert(data.message || 'Booking not found', 'error');
+                    showAlert(data.message || 'Booking not found. Please check the booking number.', 'error');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                showAlert('Error searching booking. Please try again.', 'error');
+                showAlert('Error connecting to server. Please try again.', 'error');
             } finally {
                 document.getElementById('loader').classList.remove('show');
             }
         }
 
-        // Fill form with booking data
+        // Fill form with booking data from API
         function fillBookingData(booking) {
             // Customer Details
             document.getElementById('customerName').value = booking.customer_name || '';
@@ -755,8 +823,9 @@
             document.getElementById('customerAddress').value = booking.customer_address || '';
             document.getElementById('gstNumber').value = booking.gst_number || '';
             document.getElementById('bookingNumber').value = booking.booking_number || '';
+            document.getElementById('registrationNo').value = booking.registration_no || '';
 
-            // Booking Details
+            // Booking Details - Check-in and Check-out
             if (booking.check_in) {
                 document.getElementById('checkIn').value = formatDateTimeForInput(booking.check_in);
             }
@@ -764,28 +833,47 @@
                 document.getElementById('checkOut').value = formatDateTimeForInput(booking.check_out);
             }
 
+            // Payment Mode
             document.getElementById('paymentMode').value = booking.payment_mode || 'cash';
 
             // Financial Details
-            document.getElementById('discountAmount').value = booking.discount_amount || 0;
-            document.getElementById('gstRate').value = booking.gst_percentage || 0;
-            document.getElementById('advancePayment').value = booking.advance_payment || 0;
+            const discountAmount = parseFloat(booking.discount_amount || booking.discount_value || 0);
+            document.getElementById('discountAmount').value = discountAmount;
 
-            // Rooms
-            if (booking.rooms && booking.rooms.length > 0) {
+            // Discount Type
+            const discountType = booking.discount_type || 'flat';
+            document.getElementById('discountType').value = discountType;
+
+            document.getElementById('gstRate').value = parseFloat(booking.gst_percentage || 12);
+            document.getElementById('serviceTax').value = parseFloat(booking.service_tax || 0);
+            document.getElementById('extraCharges').value = parseFloat(booking.extra_charges || 0);
+            document.getElementById('otherCharges').value = parseFloat(booking.other_charges || 0);
+            document.getElementById('advancePayment').value = parseFloat(booking.advance_payment || 0);
+
+            // Rooms Data
+            if (booking.booking_rooms && booking.booking_rooms.length > 0) {
+                rooms = booking.booking_rooms.map((bookingRoom, index) => ({
+                    id: index + 1,
+                    roomNumber: bookingRoom.room?.room_number || bookingRoom.room_number || '',
+                    roomType: bookingRoom.room?.room_type?.name || bookingRoom.room?.roomType?.name || bookingRoom.room_type || '',
+                    ratePerNight: parseFloat(bookingRoom.room_price || bookingRoom.room?.base_price || 0)
+                }));
+            } else if (booking.rooms && booking.rooms.length > 0) {
+                // Alternative rooms structure
                 rooms = booking.rooms.map((room, index) => ({
                     id: index + 1,
                     roomNumber: room.room_number || room.room?.room_number || '',
-                    roomType: room.room_type || room.room?.room_type?.name || '',
-                    ratePerNight: parseFloat(room.room_price || room.room?.base_price || 0)
+                    roomType: room.room_type || room.room?.room_type?.name || room.room?.roomType?.name || '',
+                    ratePerNight: parseFloat(room.room_price || room.base_price || room.room?.base_price || 0)
                 }));
-                renderRooms();
             }
 
+            // Render rooms and update preview
+            renderRooms();
             updatePreview();
         }
 
-        // Format datetime for input field
+        // Format datetime string to input format (YYYY-MM-DDTHH:MM)
         function formatDateTimeForInput(dateString) {
             const date = new Date(dateString);
             const year = date.getFullYear();
@@ -796,26 +884,25 @@
             return `${year}-${month}-${day}T${hours}:${minutes}`;
         }
 
-        // Reset form to default values
         function resetForm() {
             document.getElementById('searchBookingNumber').value = '';
-
-            // Reset to default values
             document.getElementById('customerName').value = 'John Doe';
             document.getElementById('customerMobile').value = '9876543210';
             document.getElementById('customerAddress').value = '123 Main Street, Mumbai';
             document.getElementById('gstNumber').value = '27XXXXX1234X1Z5';
             document.getElementById('bookingNumber').value = 'BK-2026-001';
-
+            document.getElementById('registrationNo').value = 'REG-12345';
             document.getElementById('checkIn').value = '2026-01-01T14:00';
             document.getElementById('checkOut').value = '2026-01-03T12:00';
             document.getElementById('paymentMode').value = 'cash';
-
             document.getElementById('discountAmount').value = '0';
+            document.getElementById('discountType').value = 'flat';
             document.getElementById('gstRate').value = '12';
+            document.getElementById('serviceTax').value = '0';
+            document.getElementById('extraCharges').value = '0';
+            document.getElementById('otherCharges').value = '0';
             document.getElementById('advancePayment').value = '2000';
 
-            // Reset rooms
             rooms = [
                 { id: 1, roomNumber: '101', roomType: 'Deluxe AC', ratePerNight: 2000 },
                 { id: 2, roomNumber: '102', roomType: 'Standard Non-AC', ratePerNight: 1500 }
@@ -826,7 +913,6 @@
             hideAlert();
         }
 
-        // Show/Hide Alert
         function showAlert(message, type) {
             const alert = document.getElementById('alertMessage');
             alert.textContent = message;
@@ -834,8 +920,7 @@
         }
 
         function hideAlert() {
-            const alert = document.getElementById('alertMessage');
-            alert.classList.remove('show');
+            document.getElementById('alertMessage').classList.remove('show');
         }
 
         function calculateNights() {
@@ -848,177 +933,267 @@
 
         function calculateTotals() {
             const nights = calculateNights();
-            const grossAmount = rooms.reduce((sum, room) => sum + (room.ratePerNight * nights), 0);
-            const discountAmount = parseFloat(document.getElementById('discountAmount').value) || 0;
-            const discountedAmount = grossAmount - discountAmount;
+            const roomCharges = rooms.reduce((sum, room) => sum + (room.ratePerNight * nights), 0);
+
+            const discountValue = parseFloat(document.getElementById('discountAmount').value) || 0;
+            const discountType = document.getElementById('discountType').value;
+
+            let discountAmount = 0;
+            if (discountType === 'percentage') {
+                discountAmount = (roomCharges * discountValue) / 100;
+            } else {
+                discountAmount = discountValue;
+            }
+
+            const afterDiscount = roomCharges - discountAmount;
             const gstRate = parseFloat(document.getElementById('gstRate').value) || 0;
-            const gstAmount = (discountedAmount * gstRate) / 100;
-            const totalAmount = discountedAmount + gstAmount;
+            const gstAmount = (afterDiscount * gstRate) / 100;
+            const serviceTax = parseFloat(document.getElementById('serviceTax').value) || 0;
+            const extraCharges = parseFloat(document.getElementById('extraCharges').value) || 0;
+            const otherCharges = parseFloat(document.getElementById('otherCharges').value) || 0;
+
+            const totalAmount = afterDiscount + gstAmount + serviceTax + extraCharges + otherCharges;
             const advancePayment = parseFloat(document.getElementById('advancePayment').value) || 0;
             const balanceDue = totalAmount - advancePayment;
 
-            return { grossAmount, discountAmount, gstAmount, totalAmount, balanceDue, nights, gstRate };
+            return {
+                roomCharges,
+                discountAmount,
+                discountValue,
+                discountType,
+                gstAmount,
+                serviceTax,
+                extraCharges,
+                otherCharges,
+                totalAmount,
+                balanceDue,
+                nights,
+                gstRate
+            };
         }
 
-        function numberToWords(num) {
+        function numberToWords(amount) {
             const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
             const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
             const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
 
-            if (num === 0) return 'Zero Rupees Only';
+            if (amount === 0) return 'Zero Rupees Only';
 
-            function convertLessThanThousand(n) {
-                if (n === 0) return '';
-                if (n < 10) return ones[n];
-                if (n < 20) return teens[n - 10];
-                if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 ? ' ' + ones[n % 10] : '');
-                return ones[Math.floor(n / 100)] + ' Hundred' + (n % 100 ? ' ' + convertLessThanThousand(n % 100) : '');
+            let num = Math.floor(amount);
+            let words = '';
+
+            // Crores
+            if (num >= 10000000) {
+                words += convertLessThanThousand(Math.floor(num / 10000000)) + ' Crore ';
+                num %= 10000000;
             }
 
-            function convert(n) {
-                if (n === 0) return 'Zero';
-                if (n < 1000) return convertLessThanThousand(n);
-                if (n < 100000) return convertLessThanThousand(Math.floor(n / 1000)) + ' Thousand' + (n % 1000 ? ' ' + convertLessThanThousand(n % 1000) : '');
-                if (n < 10000000) return convertLessThanThousand(Math.floor(n / 100000)) + ' Lakh' + (n % 100000 ? ' ' + convert(n % 100000) : '');
-                return convertLessThanThousand(Math.floor(n / 10000000)) + ' Crore' + (n % 10000000 ? ' ' + convert(n % 10000000) : '');
+            // Lakhs
+            if (num >= 100000) {
+                words += convertLessThanThousand(Math.floor(num / 100000)) + ' Lakh ';
+                num %= 100000;
+            }
+
+            // Thousands
+            if (num >= 1000) {
+                words += convertLessThanThousand(Math.floor(num / 1000)) + ' Thousand ';
+                num %= 1000;
+            }
+
+            // Hundreds
+            if (num > 0) {
+                words += convertLessThanThousand(num);
+            }
+
+            function convertLessThanThousand(n) {
+                let str = '';
+
+                if (n >= 100) {
+                    str += ones[Math.floor(n / 100)] + ' Hundred ';
+                    n %= 100;
                 }
 
-                return convert(Math.floor(num)) + ' Rupees Only';
-    }
+                if (n >= 20) {
+                    str += tens[Math.floor(n / 10)] + ' ';
+                    n %= 10;
+                } else if (n >= 10) {
+                    str += teens[n - 10] + ' ';
+                    return str.trim();
+                }
 
-    function formatDate(dateString) {
-        const date = new Date(dateString);
-        const day = String(date.getDate()).padStart(2, '0');
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        const month = months[date.getMonth()];
-        const year = date.getFullYear();
-        let hours = date.getHours();
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-        hours = hours % 12 || 12;
-        return `${day} ${month} ${year} ${String(hours).padStart(2, '0')}:${minutes} ${ampm}`;
-    }
+                if (n > 0) {
+                    str += ones[n] + ' ';
+                }
 
-    function renderRooms() {
-        const container = document.getElementById('roomsContainer');
-        container.innerHTML = rooms.map((room, index) => `
-            <div class="room-card">
-                <div class="room-card-grid">
-                    <div class="form-group">
-                        <label>Room No</label>
-                        <input type="text" value="${room.roomNumber}"
-                            onchange="updateRoom(${room.id}, 'roomNumber', this.value)">
+                return str.trim();
+            }
+
+            return words.trim() + ' Rupees Only';
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const day = String(date.getDate()).padStart(2, '0');
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const month = months[date.getMonth()];
+            const year = date.getFullYear();
+            let hours = date.getHours();
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12 || 12;
+            return `${day} ${month} ${year} ${String(hours).padStart(2, '0')}:${minutes} ${ampm}`;
+        }
+
+        function renderRooms() {
+            const container = document.getElementById('roomsContainer');
+            container.innerHTML = rooms.map((room) => `
+                <div class="room-card">
+                    <div class="room-card-grid">
+                        <div class="form-group">
+                            <label>Room No</label>
+                            <input type="text" value="${room.roomNumber}"
+                                onchange="updateRoom(${room.id}, 'roomNumber', this.value)">
+                        </div>
+                        <div class="form-group">
+                            <label>Room Type</label>
+                            <input type="text" value="${room.roomType}"
+                                onchange="updateRoom(${room.id}, 'roomType', this.value)">
+                        </div>
+                        <div class="form-group">
+                            <label>Rate per Night (₹)</label>
+                            <input type="number" value="${room.ratePerNight}" min="0" step="0.01"
+                                onchange="updateRoom(${room.id}, 'ratePerNight', parseFloat(this.value))">
+                        </div>
+                        <button class="btn btn-danger" onclick="removeRoom(${room.id})"
+                            ${rooms.length === 1 ? 'disabled' : ''}>🗑️</button>
                     </div>
-                    <div class="form-group">
-                        <label>Room Type</label>
-                        <input type="text" value="${room.roomType}"
-                            onchange="updateRoom(${room.id}, 'roomType', this.value)">
-                    </div>
-                    <div class="form-group">
-                        <label>Rate per Night (₹)</label>
-                        <input type="number" value="${room.ratePerNight}" min="0" step="0.01"
-                            onchange="updateRoom(${room.id}, 'ratePerNight', parseFloat(this.value))">
-                    </div>
-                    <button class="btn btn-danger" onclick="removeRoom(${room.id})"
-                        ${rooms.length === 1 ? 'disabled' : ''}>🗑️</button>
                 </div>
-            </div>
-        `).join('');
-    }
+            `).join('');
+        }
 
-    function addRoom() {
-        const newId = rooms.length > 0 ? Math.max(...rooms.map(r => r.id)) + 1 : 1;
-        rooms.push({ id: newId, roomNumber: '', roomType: '', ratePerNight: 0 });
-        renderRooms();
-        updatePreview();
-    }
-
-    function removeRoom(id) {
-        if (rooms.length > 1) {
-            rooms = rooms.filter(room => room.id !== id);
+        function addRoom() {
+            const newId = rooms.length > 0 ? Math.max(...rooms.map(r => r.id)) + 1 : 1;
+            rooms.push({ id: newId, roomNumber: '', roomType: '', ratePerNight: 0 });
             renderRooms();
             updatePreview();
         }
-    }
 
-    function updateRoom(id, field, value) {
-        const room = rooms.find(r => r.id === id);
-        if (room) {
-            room[field] = value;
+        function removeRoom(id) {
+            if (rooms.length > 1) {
+                rooms = rooms.filter(room => room.id !== id);
+                renderRooms();
+                updatePreview();
+            }
+        }
+
+        function updateRoom(id, field, value) {
+            const room = rooms.find(r => r.id === id);
+            if (room) {
+                room[field] = value;
+                updatePreview();
+            }
+        }
+
+        function updatePreview() {
+            const nights = calculateNights();
+            document.getElementById('nights').value = nights;
+
+            const totals = calculateTotals();
+
+            // Update editor summary
+            document.getElementById('summaryRoomCharges').textContent = `₹${totals.roomCharges.toFixed(2)}`;
+            document.getElementById('summaryTotal').textContent = `₹${totals.totalAmount.toFixed(2)}`;
+            document.getElementById('summaryBalance').textContent = `₹${totals.balanceDue.toFixed(2)}`;
+
+            // Update preview - Customer Details
+            document.getElementById('prevCustomerName').textContent = document.getElementById('customerName').value;
+            document.getElementById('prevCustomerAddress').textContent = document.getElementById('customerAddress').value;
+            document.getElementById('prevCustomerMobile').textContent = document.getElementById('customerMobile').value;
+            document.getElementById('prevGstNumber').textContent = document.getElementById('gstNumber').value;
+
+            // Update preview - Booking Details
+            document.getElementById('prevBookingNumber').textContent = document.getElementById('bookingNumber').value;
+            document.getElementById('prevRegistrationNo').textContent = document.getElementById('registrationNo').value;
+
+            const today = new Date();
+            document.getElementById('prevCurrentDate').textContent = formatDate(today);
+            document.getElementById('prevCheckIn').textContent = formatDate(document.getElementById('checkIn').value);
+            document.getElementById('prevCheckOut').textContent = formatDate(document.getElementById('checkOut').value);
+
+            // Update preview - Rooms Table
+            const roomsTableBody = document.getElementById('prevRoomsTable');
+            roomsTableBody.innerHTML = rooms.map(room => `
+                <tr>
+                    <td>${room.roomNumber}</td>
+                    <td>${room.roomType}</td>
+                    <td class="right">₹${room.ratePerNight.toFixed(2)}</td>
+                    <td class="center">${nights > 0 ? nights : ''}</td>
+                    <td class="right">₹${(nights > 0 ? room.ratePerNight * nights : room.ratePerNight).toFixed(2)}</td>
+                </tr>
+            `).join('');
+
+            // Update preview - Payment and Financial Summary
+            const paymentMode = document.getElementById('paymentMode').value;
+            document.getElementById('prevPaymentMode').textContent = paymentMode.replace('_', ' ').charAt(0).toUpperCase() + paymentMode.replace('_', ' ').slice(1);
+            document.getElementById('prevAmountWords').textContent = numberToWords(totals.totalAmount);
+
+            document.getElementById('prevRoomCharges').textContent = `₹${totals.roomCharges.toFixed(2)}`;
+
+            // Display discount
+            if (totals.discountType === 'percentage') {
+                document.getElementById('prevDiscountDisplay').textContent = `${totals.discountValue}%`;
+            } else {
+                document.getElementById('prevDiscountDisplay').textContent = `₹${totals.discountValue}`;
+            }
+            document.getElementById('prevDiscount').textContent = `- ₹${totals.discountAmount.toFixed(2)}`;
+
+            document.getElementById('prevGstRate').textContent = totals.gstRate;
+            document.getElementById('prevGstAmount').textContent = `₹${totals.gstAmount.toFixed(2)}`;
+            document.getElementById('prevServiceTax').textContent = `₹${totals.serviceTax.toFixed(2)}`;
+
+            // Show/hide extra and other charges
+            if (totals.extraCharges > 0) {
+                document.getElementById('extraChargesRow').style.display = 'flex';
+                document.getElementById('prevExtraCharges').textContent = `₹${totals.extraCharges.toFixed(2)}`;
+            } else {
+                document.getElementById('extraChargesRow').style.display = 'none';
+            }
+
+            if (totals.otherCharges > 0) {
+                document.getElementById('otherChargesRow').style.display = 'flex';
+                document.getElementById('prevOtherCharges').textContent = `₹${totals.otherCharges.toFixed(2)}`;
+            } else {
+                document.getElementById('otherChargesRow').style.display = 'none';
+            }
+
+            document.getElementById('prevTotalAmount').textContent = `₹${totals.totalAmount.toFixed(2)}`;
+            document.getElementById('prevAdvance').textContent = `₹${parseFloat(document.getElementById('advancePayment').value).toFixed(2)}`;
+            document.getElementById('prevBalanceDue').textContent = `₹${totals.balanceDue.toFixed(2)}`;
+        }
+
+        function showPreview() {
             updatePreview();
+            document.getElementById('editorSection').classList.add('hidden');
+            document.getElementById('invoicePreview').classList.add('active');
+            window.scrollTo(0, 0);
         }
-    }
 
-    function updatePreview() {
-        const nights = calculateNights();
-        document.getElementById('nights').value = nights;
+        function hidePreview() {
+            document.getElementById('editorSection').classList.remove('hidden');
+            document.getElementById('invoicePreview').classList.remove('active');
+            window.scrollTo(0, 0);
+        }
 
-        const totals = calculateTotals();
-
-        // Update summary
-        document.getElementById('summaryGross').textContent = `₹${totals.grossAmount.toFixed(2)}`;
-        document.getElementById('summaryTotal').textContent = `₹${totals.totalAmount.toFixed(2)}`;
-        document.getElementById('summaryBalance').textContent = `₹${totals.balanceDue.toFixed(2)}`;
-
-        // Update preview
-        document.getElementById('prevCustomerName').textContent = document.getElementById('customerName').value;
-        document.getElementById('prevCustomerAddress').textContent = document.getElementById('customerAddress').value;
-        document.getElementById('prevCustomerMobile').textContent = document.getElementById('customerMobile').value;
-        document.getElementById('prevGstNumber').textContent = document.getElementById('gstNumber').value;
-        document.getElementById('prevBookingNumber').textContent = document.getElementById('bookingNumber').value;
-
-        const today = new Date();
-        document.getElementById('prevCurrentDate').textContent = formatDate(today);
-        document.getElementById('prevCheckIn').textContent = formatDate(document.getElementById('checkIn').value);
-        document.getElementById('prevCheckOut').textContent = formatDate(document.getElementById('checkOut').value);
-
-        // Update rooms table
-        const roomsTableBody = document.getElementById('prevRoomsTable');
-        roomsTableBody.innerHTML = rooms.map(room => `
-            <tr>
-                <td>${room.roomNumber}</td>
-                <td>${room.roomType}</td>
-                <td class="right">₹${room.ratePerNight.toFixed(2)}</td>
-                <td class="center">${nights}</td>
-                <td class="right">₹${(room.ratePerNight * nights).toFixed(2)}</td>
-            </tr>
-        `).join('');
-
-        // Update payment and summary
-        const paymentMode = document.getElementById('paymentMode').value;
-        document.getElementById('prevPaymentMode').textContent = paymentMode.replace('_', ' ').toUpperCase();
-        document.getElementById('prevAmountWords').textContent = numberToWords(totals.totalAmount);
-
-        document.getElementById('prevGrossAmount').textContent = `₹${totals.grossAmount.toFixed(2)}`;
-        document.getElementById('prevDiscount').textContent = `₹${totals.discountAmount.toFixed(2)}`;
-        document.getElementById('prevGstRate').textContent = totals.gstRate;
-        document.getElementById('prevGstAmount').textContent = `₹${totals.gstAmount.toFixed(2)}`;
-        document.getElementById('prevAdvance').textContent = `₹${parseFloat(document.getElementById('advancePayment').value).toFixed(2)}`;
-        document.getElementById('prevNetAmount').textContent = `₹${totals.totalAmount.toFixed(2)}`;
-        document.getElementById('prevBalanceDue').textContent = `₹${totals.balanceDue.toFixed(2)}`;
-    }
-
-    function showPreview() {
+        // Initialize
+        renderRooms();
         updatePreview();
-        document.getElementById('editorSection').classList.add('hidden');
-        document.getElementById('invoicePreview').classList.add('active');
-        window.scrollTo(0, 0);
-    }
 
-    function hidePreview() {
-        document.getElementById('editorSection').classList.remove('hidden');
-        document.getElementById('invoicePreview').classList.remove('active');
-        window.scrollTo(0, 0);
-    }
-
-    // Initialize
-    renderRooms();
-    updatePreview();
-
-    // Allow Enter key to search
-    document.getElementById('searchBookingNumber').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            searchBooking();
-        }
-    });
-</script>
+        // Allow Enter key to search
+        document.getElementById('searchBookingNumber').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchBooking();
+            }
+        });
+    </script>
+</body>
+</html>

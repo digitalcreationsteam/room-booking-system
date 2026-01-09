@@ -66,6 +66,8 @@
 
         .detail-row {
             /* display: flex; */
+            display: flex;
+            align-items: flex-start;
             margin-bottom: 6px;
         }
 
@@ -75,17 +77,33 @@
         }
 
         .label {
-            min-width: 130px;
-            font-weight: 600;
-            color: #555;
+    width: 120px;
+    font-weight: 600;
+    color: #555;
+    flex-shrink: 0;
         }
 
-        .label::after {
-            content: " : ";
+
+        .colon {
+        width: 10px;
+        text-align: center;
+        flex-shrink: 0;
         }
+
+
+        /* .label::after {
+            content: " : ";
+        } */
+
+        /* .value {
+            color: #000;
+        } */
 
         .value {
-            color: #000;
+        flex: 1;
+        color: #000;
+        word-break: break-word;
+        line-height: 1.4;
         }
 
         /* ================= TABLE ================= */
@@ -155,7 +173,8 @@
             flex: 1;
             padding-bottom: 10px;
             border-bottom: 1px solid #ccc;
-            line-height: 1.5;
+            line-height: 1.6;
+            font-size: 9pt;
         }
 
         .left-bottom {
@@ -218,18 +237,75 @@
 <div class="details-box">
 
       <div class="details-column">
-        <div class="detail-row"><span class="label">Name</span><span class="value">{{ $booking->customer_name }}</span></div>
-        <div class="detail-row"><span class="label">Address</span><span class="value">{{ $booking->customer_address }}</span></div>
-        <div class="detail-row"><span class="label">Mobile</span><span class="value">{{ $booking->customer_mobile }}</span></div>
-        <div class="detail-row"><span class="label">GST No</span><span class="value">{{ $booking->gst_number }}</span></div>
+
+        <div class="detail-row">
+            <span class="label">Name</span>
+            <span class="colon">:</span>
+            <span class="value">{{ $booking->customer_name }}</span>
+        </div>
+
+        <div class="detail-row">
+            <span class="label">Address</span>
+            <span class="colon">:</span>
+            <span class="value">{{ $booking->customer_address }}</span>
+        </div>
+
+        <div class="detail-row">
+            <span class="label">Mobile</span>
+            <span class="colon">:</span>
+            <span class="value">{{ $booking->customer_mobile }}</span>
+        </div>
+
+        <div class="detail-row">
+            <span class="label">Company Name</span>
+            <span class="colon">:</span>
+            <span class="value">{{ $booking->company_name }}</span>
+        </div>
+
+        <div class="detail-row">
+            <span class="label">GST No</span>
+            <span class="colon">:</span>
+            <span class="value">{{ $booking->gst_number }}</span>
+        </div>
+
     </div>
 
     <div class="details-column right">
-        <div class="detail-row"><span class="label">Date</span><span class="value">{{ now()->format('d M Y') }}</span></div>
+    <div class="detail-row">
+    <span class="label">Date</span>
+    <span class="colon">:</span>
+    <span class="value">{{ now()->format('d M Y') }}</span>
+    </div>
+
+        <div class="detail-row">
+            <span class="label">Registration No</span>
+            <span class="colon">:</span>
+            <span class="value">{{ $booking->registration_no }}</span>
+        </div>
+
+        <div class="detail-row">
+            <span class="label">Invoice No</span>
+            <span class="colon">:</span>
+            <span class="value">{{ $booking->booking_number }}</span>
+        </div>
+
+        <div class="detail-row">
+            <span class="label">Arrival</span>
+            <span class="colon">:</span>
+            <span class="value">{{ $booking->check_in->format('d M Y h:i A') }}</span>
+        </div>
+
+        <div class="detail-row">
+            <span class="label">Departure</span>
+            <span class="colon">:</span>
+            <span class="value">{{ $booking->check_out->format('d M Y h:i A') }}</span>
+        </div>
+
+        {{-- <div class="detail-row"><span class="label">Date</span><span class="value">{{ now()->format('d M Y') }}</span></div>
         <div class="detail-row"><span class="label">Registration No</span><span class="value">{{ $booking->registration_no }}</span></div>
         <div class="detail-row"><span class="label">Invoice No</span><span class="value">{{ $booking->booking_number }}</span></div>
         <div class="detail-row"><span class="label">Arrival</span><span class="value">{{ $booking->check_in->format('d M Y h:i A') }}</span></div>
-        <div class="detail-row"><span class="label">Departure</span><span class="value">{{ $booking->check_out->format('d M Y h:i A') }}</span></div>
+        <div class="detail-row"><span class="label">Departure</span><span class="value">{{ $booking->check_out->format('d M Y h:i A') }}</span></div> --}}
     </div>
 
 </div>
