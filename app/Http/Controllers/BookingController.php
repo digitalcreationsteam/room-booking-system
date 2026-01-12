@@ -214,10 +214,20 @@ class BookingController extends Controller
             'payment_mode' => 'nullable|in:cash,card,upi,bank_transfer'
         ]);
 
-        $checkIn = Carbon::parse($validated['check_in']);
-        $checkOut = Carbon::parse($validated['check_out']);
-        // $nights = $checkIn->diffInDays($checkOut);
-        $nights = max(1, $checkIn->diffInDays($checkOut));
+        // $checkIn = Carbon::parse($validated['check_in']);
+        // $checkOut = Carbon::parse($validated['check_out']);
+        // // $nights = $checkIn->diffInDays($checkOut);
+        // $nights = max(1, $checkIn->diffInDays($checkOut));
+
+
+        $checkIn  = Carbon::parse($validated['check_in'])->startOfDay();
+        $checkOut = Carbon::parse($validated['check_out'])->startOfDay();
+
+        $nights = $checkIn->diffInDays($checkOut);
+
+        // minimum 1 night
+        $nights = max(1, $nights);
+
 
         // Calculate total charges
         $totalRoomCharges = 0;
@@ -766,9 +776,18 @@ class BookingController extends Controller
         ]);
 
         /* ================= DATES ================= */
-        $checkIn  = Carbon::parse($validated['check_in']);
-        $checkOut = Carbon::parse($validated['check_out']);
-        $nights   = max(1, $checkIn->diffInDays($checkOut));
+        // $checkIn  = Carbon::parse($validated['check_in']);
+        // $checkOut = Carbon::parse($validated['check_out']);
+        // $nights   = max(1, $checkIn->diffInDays($checkOut));
+
+
+        $checkIn  = Carbon::parse($validated['check_in'])->startOfDay();
+        $checkOut = Carbon::parse($validated['check_out'])->startOfDay();
+
+        $nights = $checkIn->diffInDays($checkOut);
+
+        // minimum 1 night
+        $nights = max(1, $nights);
 
         /* ================= DISCOUNT ================= */
         $roomCharges    = $validated['room_charges'];

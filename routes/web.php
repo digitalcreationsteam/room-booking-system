@@ -41,7 +41,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-
 Route::middleware(['auth', 'verified', 'check.license'])->group(function () {
 
     // Dashboard
@@ -78,11 +77,9 @@ Route::middleware(['auth', 'verified', 'check.license'])->group(function () {
     Route::get('/customers/search', [CustomerController::class, 'search'])->name('customers.search');
 });
 
-
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/license/generate', [LicenseAdminController::class, 'showGenerateForm'])->name('admin.license.generate');
     Route::post('/license/generate', [LicenseAdminController::class, 'generateLicense'])->name('admin.license.store');
 });
-
 
 // require __DIR__.'/auth.php';
