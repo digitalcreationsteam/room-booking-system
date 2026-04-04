@@ -117,6 +117,18 @@
             @enderror
         </div>
 
+        {{-- Booking Create Date --}}
+        <div>
+            <label class="block text-sm font-medium mb-1">Booking Create Date *</label>
+            <input type="datetime-local"
+                name="booking_create_date"
+                value="{{ old('booking_create_date', optional($booking->created_at)->format('Y-m-d\TH:i')) }}"
+                class="w-full px-3 py-2 border rounded @error('booking_create_date') border-red-500 @enderror">
+            @error('booking_create_date')
+                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
         {{-- Adults --}}
         <div>
             <label class="block text-sm font-medium mb-1">Adults</label>

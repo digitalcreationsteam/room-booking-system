@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,7 +23,9 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot()
     {
-        DB::statement('PRAGMA foreign_keys=ON;');
+        // DB::statement('PRAGMA foreign_keys=ON;');
         Paginator::useTailwind();
+        Schema::defaultStringLength(191);
+
     }
 }

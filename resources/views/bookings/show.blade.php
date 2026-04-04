@@ -64,16 +64,14 @@
             <h3 class="text-lg font-semibold mb-4">Booking Information</h3>
 
             <div class="grid grid-cols-2 gap-4 mb-4">
+                <p class="font-semibold">
+                {{ \Carbon\Carbon::parse($booking->check_in)->format('d M Y, h:i A') }}
+                </p>
+                <p class="font-semibold">
+               {{ \Carbon\Carbon::parse($booking->check_out)->format('d M Y, h:i A') }}
+                </p>
                 <div>
-                    <p class="text-sm text-gray-600">Check-in</p>
-                    <p class="font-semibold">{{ $booking->check_in->format('d M Y, h:i A') }}</p>
-                </div>
-                <div>
-                    <p class="text-sm text-gray-600">Check-out</p>
-                    <p class="font-semibold">{{ $booking->check_out->format('d M Y, h:i A') }}</p>
-                </div>
-                <div>
-                    <p class="text-sm text-gray-600">Number of Nights</p>
+                    <p class="text-sm text-gray-600">Number of Days</p>
                     <p class="font-semibold">{{ $booking->number_of_nights }}</p>
                 </div>
                 <div>
@@ -95,11 +93,12 @@
                                 <span class="font-semibold">Room {{ $br->room->room_number }}</span>
                                 <span class="text-sm text-gray-600 ml-2">({{ $br->room->roomType->name }})</span>
                             </div>
-                            <span class="font-semibold text-blue-600">₹{{ number_format($br->room_price, 2) }}/night</span>
+                            <span class="font-semibold text-blue-600">₹{{ number_format($br->room_price, 2) }}/Days</span>
                         </div>
                     @endforeach
                 </div>
             </div>
+
         </div>
 
         <!-- Extra Charges -->

@@ -44,6 +44,7 @@ class Booking extends Model
         'discount_type',
         'discount_value',
         'discount_amount',
+        'created_at',
     ];
 
     protected $casts = [

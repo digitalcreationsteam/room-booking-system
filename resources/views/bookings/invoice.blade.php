@@ -267,14 +267,15 @@
             <span class="colon">:</span>
             <span class="value">{{ $booking->gst_number }}</span>
         </div>
-
     </div>
 
     <div class="details-column right">
     <div class="detail-row">
     <span class="label">Date</span>
     <span class="colon">:</span>
-    <span class="value">{{ now()->format('d M Y') }}</span>
+    <span class="value">{{ $booking->created_at->format('d M Y') }}</span>
+    {{--  {{ now()->format('d M Y') }} --}}
+
     </div>
 
         <div class="detail-row">
@@ -316,8 +317,8 @@
         <tr>
             <th>Room No</th>
             <th>Room Type</th>
-            <th>Rate / Night</th>
-            <th>Nights</th>
+            <th>Rate / day</th>
+            <th>days</th>
             <th>Amount</th>
         </tr>
     </thead>

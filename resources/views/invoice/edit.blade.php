@@ -554,7 +554,7 @@
                     <input type="datetime-local" id="checkOut" value="2026-01-03T12:00" oninput="updatePreview()">
                 </div>
                 <div class="form-group">
-                    <label>Number of Nights</label>
+                    <label>Number of days</label>
                     <input type="text" id="nights" value="2" readonly>
                 </div>
                 <div class="form-group">
@@ -677,7 +677,7 @@
                             <th>Room No</th>
                             <th>Room Type</th>
                             <th>Rate / Night</th>
-                            <th>Nights</th>
+                            <th>days</th>
                             <th>Amount</th>
                         </tr>
                     </thead>
